@@ -9,8 +9,8 @@
 <meta name="theme-color" content="#17785a"><meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="配当ポートフォリオ">
 <link rel="apple-touch-icon" href="./icons/icon-180.png"></head><body>
-<div class="authscreen" id="authScreen"><div class="authcard"><h1>配当ポートフォリオ</h1><p class="muted">PWA家族共有 v0.9</p><div id="setupBox"><div class="field"><label>Project URL</label><input id="sbUrl" placeholder="https://xxxxx.supabase.co"></div><div class="field"><label>Publishable key</label><input id="sbKey" type="password" placeholder="sb_publishable_..."></div><button class="primary close" id="saveConnection">接続設定を保存</button><div class="notice">Secret key / service_role key は入力しないでください。</div></div><div id="loginBox" class="hide"><div class="field"><label>メールアドレス</label><input id="loginEmail" type="email" autocomplete="username"></div><div class="field"><label>パスワード</label><input id="loginPassword" type="password" autocomplete="current-password"></div><button class="primary close" id="loginBtn">ログイン</button><button class="close" id="changeConnection">接続設定を変更</button></div><div class="statusbox" id="authStatus">接続設定を入力してください。</div></div></div>
-<header><div><div class="brand">配当ポートフォリオ <span class="mini muted">PWA家族共有 v0.9</span></div><div class="userbar" id="userBar"></div></div><div style="display:flex;gap:8px;align-items:center"><select id="memberFilter" class="filter"></select><button id="logoutBtn" class="filter">ログアウト</button></div></header>
+<div class="authscreen" id="authScreen"><div class="authcard"><h1>配当ポートフォリオ</h1><p class="muted">PWA家族共有 v0.9.1</p><div id="setupBox"><div class="field"><label>Project URL</label><input id="sbUrl" placeholder="https://xxxxx.supabase.co"></div><div class="field"><label>Publishable key</label><input id="sbKey" type="password" placeholder="sb_publishable_..."></div><button class="primary close" id="saveConnection">接続設定を保存</button><div class="notice">Secret key / service_role key は入力しないでください。</div></div><div id="loginBox" class="hide"><div class="field"><label>メールアドレス</label><input id="loginEmail" type="email" autocomplete="username"></div><div class="field"><label>パスワード</label><input id="loginPassword" type="password" autocomplete="current-password"></div><button class="primary close" id="loginBtn">ログイン</button><button class="close" id="changeConnection">接続設定を変更</button></div><div class="statusbox" id="authStatus">接続設定を入力してください。</div></div></div>
+<header><div><div class="brand">配当ポートフォリオ <span class="mini muted">PWA家族共有 v0.9.1</span></div><div class="userbar" id="userBar"></div></div><div style="display:flex;gap:8px;align-items:center"><select id="memberFilter" class="filter"></select><button id="logoutBtn" class="filter">ログアウト</button></div></header>
 <div class="wrap">
 <section id="home"></section>
 <section id="portfolio" class="hide"></section>
@@ -277,11 +277,13 @@ function renderImportPreview(){
 async function commitInitialAssets(){
   if(!remoteMode||!remoteContext)return alert('Supabaseへログインしてください。');
   if(!pendingInitialImport.length||pendingInitialImport.some(x=>x.errors.length))return alert('登録できない行があります。');
-  if(!confirm(`${pendingInitialImport.length}行をSupabaseへ登録します。よろしいですか？`))return;
+  if(!confirm(`${pendingInitialImport.length}行を確認します。既存の初期残高はスキップし、新規分だけSupabaseへ登録します。よろしいですか？`))return;
+
   const fid=remoteContext.family.id;
   const {data:members,error:me}=await sb.from('family_members').select('id,display_name').eq('family_id',fid);
   if(me)return alert('家族情報を確認できません：'+me.message);
   const memberMap=new Map((members||[]).map(x=>[normText(x.display_name),x.id]));
+
   const {data:existingAccounts,error:ae}=await sb.from('brokerage_accounts').select('*').eq('family_id',fid);
   if(ae)return alert('口座情報を確認できません：'+ae.message);
   const {data:existingSecs,error:se}=await sb.from('securities').select('*').eq('family_id',fid);
@@ -289,30 +291,63 @@ async function commitInitialAssets(){
   const {data:existingTx,error:te}=await sb.from('transactions').select('id,member_id,account_id,security_id,transaction_type,status').eq('family_id',fid).eq('status','active');
   if(te)return alert('取引情報を確認できません：'+te.message);
 
-  const accounts=[...(existingAccounts||[])], secs=[...(existingSecs||[])];
-  let addedAccounts=0,addedSecs=0,addedTx=0;
+  const accounts=[...(existingAccounts||[])], secs=[...(existingSecs||[])], txs=[...(existingTx||[])];
+  let addedAccounts=0,addedSecs=0,addedTx=0,skipped=0;
+  const failures=[];
+
   for(const x of pendingInitialImport){
-    const mid=memberMap.get(x.member);if(!mid)return alert(`${x.member} がfamily_membersにありません。`);
-    let ac=accounts.find(a=>a.member_id===mid&&normText(a.broker_name)===x.broker&&normText(a.account_type)===x.accountType);
-    if(!ac){
-      const {data,error}=await sb.from('brokerage_accounts').insert({family_id:fid,member_id:mid,broker_name:x.broker,account_name:x.accountType,account_type:x.accountType,currency:x.currency,is_active:true}).select().single();
-      if(error)return alert(`行${x.row} 口座登録エラー：${error.message}`);ac=data;accounts.push(ac);addedAccounts++;
+    try{
+      const mid=memberMap.get(x.member);
+      if(!mid){failures.push({row:x.row,symbol:x.symbol,reason:`${x.member} がfamily_membersにありません`});continue;}
+
+      let ac=accounts.find(a=>a.member_id===mid&&normText(a.broker_name)===x.broker&&normText(a.account_type)===x.accountType);
+      if(!ac){
+        const {data,error}=await sb.from('brokerage_accounts').insert({family_id:fid,member_id:mid,broker_name:x.broker,account_name:x.accountType,account_type:x.accountType,currency:x.currency,is_active:true}).select().single();
+        if(error){failures.push({row:x.row,symbol:x.symbol,reason:'口座登録：'+error.message});continue;}
+        ac=data;accounts.push(ac);addedAccounts++;
+      }
+
+      let sec=secs.find(a=>normText(a.symbol).toUpperCase()===normText(x.symbol).toUpperCase());
+      if(!sec){
+        const {data,error}=await sb.from('securities').insert({family_id:fid,symbol:x.symbol,name:x.name,asset_type:x.assetType,currency:x.currency,sector:x.assetType==='投資信託'?'ETF/投信':'未分類',current_price:x.price,annual_dividend_per_share:0,dividend_frequency:0,dividend_status:'据置',is_active:true}).select().single();
+        if(error){failures.push({row:x.row,symbol:x.symbol,reason:'銘柄登録：'+error.message});continue;}
+        sec=data;secs.push(sec);addedSecs++;
+      }
+
+      const duplicate=txs.some(t=>t.member_id===mid&&t.account_id===ac.id&&t.security_id===sec.id&&t.transaction_type==='initial');
+      if(duplicate){skipped++;continue;}
+
+      const row={family_id:fid,member_id:mid,account_id:ac.id,security_id:sec.id,transaction_type:'initial',trade_date:new Date().toISOString().slice(0,10),quantity:x.qty,price:x.price,currency:x.currency,funding_source:'通常資金',status:'active',created_by:remoteContext.user.id};
+      const {data,error}=await sb.from('transactions').insert(row).select('id,member_id,account_id,security_id,transaction_type,status').single();
+      if(error){failures.push({row:x.row,symbol:x.symbol,reason:'初期残高登録：'+error.message});continue;}
+      txs.push(data);addedTx++;
+    }catch(e){
+      failures.push({row:x.row,symbol:x.symbol,reason:String(e?.message||e)});
     }
-    let sec=secs.find(a=>normText(a.symbol).toUpperCase()===normText(x.symbol).toUpperCase());
-    if(!sec){
-      const {data,error}=await sb.from('securities').insert({family_id:fid,symbol:x.symbol,name:x.name,asset_type:x.assetType,currency:x.currency,sector:x.assetType==='投資信託'?'ETF/投信':'未分類',current_price:x.price,annual_dividend_per_share:0,dividend_frequency:0,dividend_status:'据置',is_active:true}).select().single();
-      if(error)return alert(`行${x.row} 銘柄登録エラー：${error.message}`);sec=data;secs.push(sec);addedSecs++;
-    }
-    const duplicate=(existingTx||[]).some(t=>t.member_id===mid&&t.account_id===ac.id&&t.security_id===sec.id&&t.transaction_type==='initial');
-    if(duplicate)return alert(`行${x.row} ${x.member} / ${x.broker} / ${x.symbol} は初期残高が既に登録されています。重複防止のため処理を停止しました。`);
-    const row={family_id:fid,member_id:mid,account_id:ac.id,security_id:sec.id,transaction_type:'initial',trade_date:new Date().toISOString().slice(0,10),quantity:x.qty,price:x.price,currency:x.currency,funding_source:'通常資金',status:'active',created_by:remoteContext.user.id};
-    const {data,error}=await sb.from('transactions').insert(row).select('id,member_id,account_id,security_id,transaction_type,status').single();
-    if(error)return alert(`行${x.row} 初期残高登録エラー：${error.message}`);
-    existingTx.push(data);addedTx++;
   }
+
+  // 登録後に市場情報を取得。コード名のまま登録された既存銘柄も、
+  // bright-task 側の名称補完ロジックで正式名称へ更新される。
+  let marketMessage='';
+  try{
+    const {data,error}=await sb.functions.invoke('bright-task',{body:{action:'update-securities'}});
+    if(error)throw error;
+    const results=Array.isArray(data?.results)?data.results:[];
+    const marketOk=results.filter(r=>r.ok&&!r.skipped).length;
+    const marketSkipped=results.filter(r=>r.skipped).length;
+    const marketNg=results.filter(r=>!r.ok).length;
+    marketMessage=`\n市場情報更新：成功 ${marketOk}件 / 対象外 ${marketSkipped}件 / 失敗 ${marketNg}件`;
+  }catch(e){
+    marketMessage=`\n市場情報更新：失敗（登録データは保存済み）`;
+  }
+
   pendingInitialImport=[];
   await loadRemoteData();
-  alert(`登録完了：口座 ${addedAccounts}件、銘柄 ${addedSecs}件、初期残高 ${addedTx}件`);
+
+  const failText=failures.length
+    ? '\n\n失敗した行：\n'+failures.slice(0,8).map(f=>`行${f.row} ${f.symbol}：${f.reason}`).join('\n')+(failures.length>8?`\nほか ${failures.length-8}件`:'')
+    : '';
+  alert(`登録処理完了\n新規初期残高 ${addedTx}件\n既存スキップ ${skipped}件\n登録失敗 ${failures.length}件\n新規銘柄 ${addedSecs}件 / 新規口座 ${addedAccounts}件${marketMessage}${failText}`);
 }
 function resetData(){if(remoteMode)return alert('Supabase実データモードではこのボタンは使用しません。');if(confirm('入力内容を消してテストデータへ戻しますか？')){db=structuredClone(seed);localStorage.setItem(KEY,JSON.stringify(db));filter='ALL';renderAll()}}
 memberFilter.onchange=e=>{filter=e.target.value;renderAll()};fab.onclick=()=>openSheet(`<h2>追加する</h2><div class="actions"><button onclick="addForm('buy')">買付</button><button onclick="addForm('sell')">売却</button><button onclick="dividendForm()">配当・分配金</button><button onclick="addForm('initial')">初期残高</button></div>`);modal.onclick=e=>{if(e.target===modal)closeSheet()};
