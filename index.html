@@ -9,8 +9,8 @@
 <meta name="theme-color" content="#17785a"><meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="配当ポートフォリオ">
 <link rel="apple-touch-icon" href="./icons/icon-180.png"></head><body>
-<div class="authscreen" id="authScreen"><div class="authcard"><h1>配当ポートフォリオ</h1><p class="muted">PWA家族共有 v0.9.3</p><div id="setupBox"><div class="field"><label>Project URL</label><input id="sbUrl" placeholder="https://xxxxx.supabase.co"></div><div class="field"><label>Publishable key</label><input id="sbKey" type="password" placeholder="sb_publishable_..."></div><button class="primary close" id="saveConnection">接続設定を保存</button><div class="notice">Secret key / service_role key は入力しないでください。</div></div><div id="loginBox" class="hide"><div class="field"><label>メールアドレス</label><input id="loginEmail" type="email" autocomplete="username"></div><div class="field"><label>パスワード</label><input id="loginPassword" type="password" autocomplete="current-password"></div><button class="primary close" id="loginBtn">ログイン</button><button class="close" id="changeConnection">接続設定を変更</button></div><div class="statusbox" id="authStatus">接続設定を入力してください。</div></div></div>
-<header><div><div class="brand">配当ポートフォリオ <span class="mini muted">PWA家族共有 v0.9.3</span></div><div class="userbar" id="userBar"></div></div><div style="display:flex;gap:8px;align-items:center"><select id="memberFilter" class="filter"></select><button id="logoutBtn" class="filter">ログアウト</button></div></header>
+<div class="authscreen" id="authScreen"><div class="authcard"><h1>配当ポートフォリオ</h1><p class="muted">PWA家族共有 v0.9.4</p><div id="setupBox"><div class="field"><label>Project URL</label><input id="sbUrl" placeholder="https://xxxxx.supabase.co"></div><div class="field"><label>Publishable key</label><input id="sbKey" type="password" placeholder="sb_publishable_..."></div><button class="primary close" id="saveConnection">接続設定を保存</button><div class="notice">Secret key / service_role key は入力しないでください。</div></div><div id="loginBox" class="hide"><div class="field"><label>メールアドレス</label><input id="loginEmail" type="email" autocomplete="username"></div><div class="field"><label>パスワード</label><input id="loginPassword" type="password" autocomplete="current-password"></div><button class="primary close" id="loginBtn">ログイン</button><button class="close" id="changeConnection">接続設定を変更</button></div><div class="statusbox" id="authStatus">接続設定を入力してください。</div></div></div>
+<header><div><div class="brand">配当ポートフォリオ <span class="mini muted">PWA家族共有 v0.9.4</span></div><div class="userbar" id="userBar"></div></div><div style="display:flex;gap:8px;align-items:center"><select id="memberFilter" class="filter"></select><button id="logoutBtn" class="filter">ログアウト</button></div></header>
 <div class="wrap">
 <section id="home"></section>
 <section id="portfolio" class="hide"></section>
@@ -68,12 +68,80 @@ function renderDividend(){
    const dateLabel=d.scheduleSource==='auto'?`${d.date.slice(0,4)}年${Number(d.date.slice(5,7))}月予定`:d.date;return `<div class="card" style="margin-bottom:10px"><strong>${dateLabel}　${asset(d.assetId).ticker}</strong><div>${label}　${yen(d.net*d.fx)} <span class="muted">(${money(d.gross,d.currency)})</span></div>${actions?`<div class="rowactions">${actions}</div>`:''}</div>`;
  }).join(''):'<div class="empty">配当データなし</div>'}</div>`;
 }
-function renderAnalysis(){let t=totals();let groups={};t.hs.forEach(h=>{let a=asset(h.assetId);groups[a.sector]=(groups[a.sector]||0)+valueY(h)});let arr=Object.entries(groups).sort((a,b)=>b[1]-a[1]), total=t.val||1;let colors=['#a9d6c7','#f3c7b8','#c8d7f0','#f5dda8','#d8c9e8','#bcded7'];let cur=0,stops=arr.map(([k,v],i)=>{let p=v/total*100,s=`${colors[i%colors.length]} ${cur}% ${cur+p}%`;cur+=p;return s}).join(',');analysis.innerHTML=`<div class="section"><h2>分析</h2><div class="piegrid"><div class="piecard"><h3>資産構成比</h3><div class="pie" style="background:conic-gradient(${stops||'#eee 0 100%'})"></div><div class="legend">${arr.map(([k,v],i)=>`<span><span class="label"><i class="swatch" style="background:${colors[i%colors.length]}"></i>${k}</span><strong>${yen(v)}　${(v/total*100).toFixed(1)}%</strong></span>`).join('')}</div></div><div class="piecard"><h3>配当資産区分</h3><div class="card"><p>配当関連資産 <strong>${yen(t.incomeVal)}</strong></p><p>総資産 <strong>${yen(t.val)}</strong></p><p>配当資産比率 <strong>${(t.incomeVal/(t.val||1)*100).toFixed(1)}%</strong></p></div></div></div></div>`}
+function analysisPie(title,entries,total,colors){
+ let cur=0;
+ let stops=entries.map(([k,v],i)=>{
+   let p=total?v/total*100:0;
+   let z=`${colors[i%colors.length]} ${cur}% ${cur+p}%`;
+   cur+=p;return z;
+ }).join(',');
+ return `<div class="piecard"><h3>${title}</h3>
+   <div class="pie" style="background:conic-gradient(${stops||'#eee 0 100%'})"></div>
+   <div class="legend">${entries.length?entries.map(([k,v],i)=>`<span><span class="label"><i class="swatch" style="background:${colors[i%colors.length]}"></i>${escapeHtml(k)}</span><strong>${yen(v)}　${total?(v/total*100).toFixed(1):'0.0'}%</strong></span>`).join(''):'<div class="empty">データなし</div>'}</div>
+ </div>`;
+}
+function renderAnalysis(){
+ let t=totals();
+ let colors=['#a9d6c7','#f3c7b8','#c8d7f0','#f5dda8','#d8c9e8','#bcded7','#e7c7d8','#cbd7b8'];
+ let byKind={},byCurrency={},byAccount={},byAsset={},byDividend={};
+ t.hs.forEach(h=>{
+   let a=asset(h.assetId), ac=acct(h.accountId), v=valueY(h);
+   if(!a||!ac)return;
+   let kind=a.kind||'未分類';
+   byKind[kind]=(byKind[kind]||0)+v;
+   let cur=a.currency||'不明';
+   byCurrency[cur]=(byCurrency[cur]||0)+v;
+   let at=ac.type||'未分類';
+   byAccount[at]=(byAccount[at]||0)+v;
+   let label=`${a.ticker} ${a.name||''}`.trim();
+   byAsset[label]=(byAsset[label]||0)+v;
+   let annual=(+a.annualPerShare||0)*h.qty*(a.currency==='USD'?db.settings.usdJpy:1);
+   if(annual>0)byDividend[label]=(byDividend[label]||0)+annual;
+ });
+ const sortObj=o=>Object.entries(o).sort((a,b)=>b[1]-a[1]);
+ let kindArr=sortObj(byKind),curArr=sortObj(byCurrency),accArr=sortObj(byAccount),assetArr=sortObj(byAsset),divArr=sortObj(byDividend);
+ let total=t.val||0, annual=t.annual||0;
+ let topAssets=assetArr.slice(0,10),topDiv=divArr.slice(0,10);
+ let topAssetTotal=topAssets.reduce((x,y)=>x+y[1],0),topDivTotal=topDiv.reduce((x,y)=>x+y[1],0);
+ analysis.innerHTML=`<div class="section"><h2>分析</h2>
+ <div class="card" style="margin-bottom:12px"><div class="kpis">
+   <div><small>分析対象資産</small><strong>${yen(total)}</strong></div>
+   <div><small>年間配当見込</small><strong>${yen(annual)}</strong></div>
+   <div><small>配当資産比率</small><strong>${(t.incomeVal/(total||1)*100).toFixed(1)}%</strong></div>
+ </div><p class="mini muted">上部の家族全体／Member切替に連動します。USD建て資産は設定中のUSD/JPYで円換算しています。</p></div>
+ <div class="piegrid">
+   ${analysisPie('資産種別',kindArr,total,colors)}
+   ${analysisPie('通貨構成',curArr,total,colors)}
+   ${analysisPie('口座区分',accArr,total,colors)}
+   ${analysisPie('年間配当の銘柄別構成',topDiv,topDivTotal,colors)}
+ </div>
+ <div class="section"><h2>銘柄別資産構成 TOP10</h2><div class="card">
+ ${topAssets.length?topAssets.map(([k,v],i)=>`<div style="margin:10px 0"><div style="display:flex;justify-content:space-between;gap:12px"><strong>${i+1}. ${escapeHtml(k)}</strong><span>${yen(v)}　${total?(v/total*100).toFixed(1):'0.0'}%</span></div><div style="height:8px;background:#edf1f3;border-radius:999px;overflow:hidden;margin-top:5px"><div style="height:100%;width:${Math.min(100,total?v/total*100:0)}%;background:var(--accent)"></div></div></div>`).join(''):'<div class="empty">資産データなし</div>'}
+ </div></div>
+ <div class="section"><h2>年間配当寄与 TOP10</h2><div class="card">
+ ${topDiv.length?topDiv.map(([k,v],i)=>`<div style="display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)"><strong>${i+1}. ${escapeHtml(k)}</strong><span>${yen(v)}　${annual?(v/annual*100).toFixed(1):'0.0'}%</span></div>`).join(''):'<div class="empty">年間配当データなし</div>'}
+ </div></div>
+ </div>`;
+}
 function renderSettings(){settings.innerHTML=`<div class="section"><h2>設定</h2><div class="card"><div class="formgrid"><div class="field"><label>高配当判定基準 (%)</label><input id="setYield" type="number" step="0.1" value="${db.settings.highYield}"></div><div class="field"><label>予定用 USD/JPY</label><input id="setFx" type="number" step="0.01" value="${db.settings.usdJpy}"></div><div class="field"><label>年間配当目標 (円)</label><input id="setGoal" type="number" value="${db.settings.goal}"></div><div class="wide"><button class="primary close" onclick="saveSettings()">設定を保存</button></div></div></div>
 <div class="section"><h2>初期資産をExcelから登録</h2><div class="card importbox"><p class="mini muted">「配当ポートフォリオ_初期資産入力テンプレート_v2.xlsx」を読み込み、内容確認後にSupabaseへ登録します。読み込んだだけでは保存されません。</p><div class="field"><label>Excelファイル（.xlsx）</label><input id="initialAssetFile" type="file" accept=".xlsx,.xls"></div><button class="close" onclick="previewInitialAssets()">Excelを読み込んで確認</button><div id="importResult"></div><div class="mini muted" style="margin-top:8px">「旧NISA」は画面表示を保持し、Supabase内部ではNISA互換として登録します。</div></div></div>
 <div class="section"><h2>市場価格の自動更新</h2><div class="card"><p class="mini muted">Supabase Edge Function「bright-task」から最新市場価格を取得し、登録銘柄の現在価格を更新します。</p><button class="primary close" id="marketPriceBtn" onclick="updateMarketPrices()">市場価格を更新</button><div class="statusbox" id="marketPriceStatus">未更新</div></div></div>
-<div class="section"><h2>銘柄情報の手動調整</h2><div class="notice">自動取得に失敗した場合や、配当・分配金を実データに合わせたい場合はここで修正できます。手入力した内容はSupabaseへ保存されます。</div>${db.assets.map(a=>`<div class="card" style="margin-bottom:8px"><strong>${a.ticker}</strong><div class="formgrid"><div class="field wide"><label>銘柄名</label><input id="name_${a.id}" value="${escapeHtml(a.name||'')}"></div><div class="field"><label>現在価格 (${a.currency})</label><input id="price_${a.id}" type="number" step="0.000001" value="${a.price}"></div><div class="field"><label>年間1株/1口 配当・分配金 (${a.currency})</label><input id="div_${a.id}" type="number" step="0.000001" value="${a.annualPerShare}"></div><div class="field"><label>年間支払回数</label><input id="freq_${a.id}" type="number" min="0" max="24" step="1" value="${a.frequency||0}"></div><div class="field"><label>配当月（例 3,6,9,12）</label><input id="months_${a.id}" value="${(a.months||[]).join(',')}" placeholder="3,6,9,12"></div><div class="field"><label>配当ステータス</label><select id="status_${a.id}">${['増配','据置','減配','無配','無配転落'].map(v=>`<option ${v===(a.dividendStatus||'据置')?'selected':''}>${v}</option>`).join('')}</select></div></div></div>`).join('')}<button class="primary close" onclick="savePrices()">銘柄情報・配当を保存</button><button class="close" onclick="generateDividendSchedules()">今年の月別予定配当を自動生成</button><div class="mini muted" style="margin-top:8px">年間配当・保有数量・配当月から予定額を均等配分します。同じ銘柄・口座・月の予定が既にある場合は重複登録しません。自動生成後も「配当」画面から予定額を修正できます。</div></div>
+<div class="section"><h2>銘柄情報の手動調整</h2><div class="notice">自動取得に失敗した場合や、配当・分配金を実データに合わせたい場合はここで修正できます。手入力した内容はSupabaseへ保存されます。</div><div class="field" style="margin:12px 0"><label>銘柄を検索</label><input id="securitySearch" type="search" placeholder="例：NTT / 9432 / NVDA" oninput="filterSecuritySettings(this.value)"></div><div class="mini muted" id="securitySearchCount" style="margin-bottom:8px">${db.assets.length}銘柄を表示</div>${db.assets.map(a=>`<div class="card security-setting-card" data-search="${escapeHtml((a.ticker+' '+(a.name||'')).toLowerCase())}" style="margin-bottom:8px"><strong>${a.ticker}</strong><div class="formgrid"><div class="field wide"><label>銘柄名</label><input id="name_${a.id}" value="${escapeHtml(a.name||'')}"></div><div class="field"><label>現在価格 (${a.currency})</label><input id="price_${a.id}" type="number" step="0.000001" value="${a.price}"></div><div class="field"><label>年間1株/1口 配当・分配金 (${a.currency})</label><input id="div_${a.id}" type="number" step="0.000001" value="${a.annualPerShare}"></div><div class="field"><label>年間支払回数</label><input id="freq_${a.id}" type="number" min="0" max="24" step="1" value="${a.frequency||0}"></div><div class="field"><label>配当月（例 3,6,9,12）</label><input id="months_${a.id}" value="${(a.months||[]).join(',')}" placeholder="3,6,9,12"></div><div class="field"><label>配当ステータス</label><select id="status_${a.id}">${['増配','据置','減配','無配','無配転落'].map(v=>`<option ${v===(a.dividendStatus||'据置')?'selected':''}>${v}</option>`).join('')}</select></div></div></div>`).join('')}<button class="primary close" onclick="savePrices()">銘柄情報・配当を保存</button><button class="close" onclick="generateDividendSchedules()">今年の月別予定配当を自動生成</button><div class="mini muted" style="margin-top:8px">年間配当・保有数量・配当月から予定額を均等配分します。同じ銘柄・口座・月の予定が既にある場合は重複登録しません。自動生成後も「配当」画面から予定額を修正できます。</div></div>
 <div class="section"><h2>Supabase</h2><div class="card"><p><strong>${remoteMode?'Supabase家族共有モード':'ローカルモード'}</strong></p><p class="mini muted">年間配当目標・予定為替・高配当判定・銘柄名・現在価格・配当/分配金をSupabaseで家族共有します。</p></div></div></div>`}
+
+function filterSecuritySettings(q){
+ const needle=(q||'').trim().toLowerCase();
+ const cards=[...document.querySelectorAll('.security-setting-card')];
+ let shown=0;
+ cards.forEach(c=>{
+   const ok=!needle||(c.dataset.search||'').includes(needle);
+   c.style.display=ok?'':'none';
+   if(ok)shown++;
+ });
+ const el=document.getElementById('securitySearchCount');
+ if(el)el.textContent=`${shown} / ${cards.length}銘柄を表示`;
+}
+
 function renderAll(){renderFilter();renderHome();renderPortfolio();renderDividend();renderAnalysis();renderSettings()}
 function openSheet(html){sheet.innerHTML=html+'<button class="close" onclick="closeSheet()">閉じる</button>';modal.style.display='flex'} function closeSheet(){modal.style.display='none'}
 function addForm(type){let opts=db.assets.map(a=>`<option value="${a.id}">${a.ticker} ${a.name}</option>`).join(''), acs=db.accounts.filter(a=>filter==='ALL'||a.member===filter).map(a=>`<option value="${a.id}">${a.member}｜${a.broker}｜${a.type}</option>`).join('');openSheet(`<h2>${type==='buy'?'買付':type==='sell'?'売却':'初期残高'}を登録</h2><div class="formgrid"><div class="field wide"><label>銘柄</label><select id="fAsset">${opts}</select></div><div class="field wide"><label>口座</label><select id="fAccount">${acs}</select></div><div class="field"><label>日付</label><input id="fDate" type="date" value="2026-09-26"></div><div class="field"><label>株数 / 口数</label><input id="fQty" type="number" step="0.001"></div><div class="field"><label>単価</label><input id="fPrice" type="number" step="0.01"></div><div class="field"><label>資金区分</label><select id="fFund"><option>通常資金</option><option>配当再投資</option></select></div><button class="primary close wide" onclick="submitTx('${type}')">保存</button></div>`)}
