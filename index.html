@@ -9,8 +9,8 @@
 <meta name="theme-color" content="#17785a"><meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="配当ポートフォリオ">
 <link rel="apple-touch-icon" href="./icons/icon-180.png"></head><body>
-<div class="authscreen" id="authScreen"><div class="authcard"><h1>配当ポートフォリオ</h1><p class="muted">PWA家族共有 v0.9.2</p><div id="setupBox"><div class="field"><label>Project URL</label><input id="sbUrl" placeholder="https://xxxxx.supabase.co"></div><div class="field"><label>Publishable key</label><input id="sbKey" type="password" placeholder="sb_publishable_..."></div><button class="primary close" id="saveConnection">接続設定を保存</button><div class="notice">Secret key / service_role key は入力しないでください。</div></div><div id="loginBox" class="hide"><div class="field"><label>メールアドレス</label><input id="loginEmail" type="email" autocomplete="username"></div><div class="field"><label>パスワード</label><input id="loginPassword" type="password" autocomplete="current-password"></div><button class="primary close" id="loginBtn">ログイン</button><button class="close" id="changeConnection">接続設定を変更</button></div><div class="statusbox" id="authStatus">接続設定を入力してください。</div></div></div>
-<header><div><div class="brand">配当ポートフォリオ <span class="mini muted">PWA家族共有 v0.9.2</span></div><div class="userbar" id="userBar"></div></div><div style="display:flex;gap:8px;align-items:center"><select id="memberFilter" class="filter"></select><button id="logoutBtn" class="filter">ログアウト</button></div></header>
+<div class="authscreen" id="authScreen"><div class="authcard"><h1>配当ポートフォリオ</h1><p class="muted">PWA家族共有 v0.9.3</p><div id="setupBox"><div class="field"><label>Project URL</label><input id="sbUrl" placeholder="https://xxxxx.supabase.co"></div><div class="field"><label>Publishable key</label><input id="sbKey" type="password" placeholder="sb_publishable_..."></div><button class="primary close" id="saveConnection">接続設定を保存</button><div class="notice">Secret key / service_role key は入力しないでください。</div></div><div id="loginBox" class="hide"><div class="field"><label>メールアドレス</label><input id="loginEmail" type="email" autocomplete="username"></div><div class="field"><label>パスワード</label><input id="loginPassword" type="password" autocomplete="current-password"></div><button class="primary close" id="loginBtn">ログイン</button><button class="close" id="changeConnection">接続設定を変更</button></div><div class="statusbox" id="authStatus">接続設定を入力してください。</div></div></div>
+<header><div><div class="brand">配当ポートフォリオ <span class="mini muted">PWA家族共有 v0.9.3</span></div><div class="userbar" id="userBar"></div></div><div style="display:flex;gap:8px;align-items:center"><select id="memberFilter" class="filter"></select><button id="logoutBtn" class="filter">ログアウト</button></div></header>
 <div class="wrap">
 <section id="home"></section>
 <section id="portfolio" class="hide"></section>
@@ -55,7 +55,7 @@ function holdings(){let m={};db.transactions.filter(t=>!t.cancelled&&inFilter(t.
 function fx(a){return a.currency==='USD'?db.settings.usdJpy:1} function valueY(h){let a=asset(h.assetId);return h.qty*a.price*fx(a)} function annualY(h){let a=asset(h.assetId);return h.qty*a.annualPerShare*fx(a)}
 function totals(){let hs=holdings(), val=hs.reduce((s,h)=>s+valueY(h),0), annual=hs.reduce((s,h)=>s+annualY(h),0), incomeVal=hs.filter(h=>asset(h.assetId).annualPerShare>0).reduce((s,h)=>s+valueY(h),0);let cost=hs.reduce((s,h)=>{let a=asset(h.assetId);return s+h.cost*fx(a)},0);let actual=db.dividends.filter(d=>!d.cancelled&&d.status==='actual'&&inFilter(d.accountId)).reduce((s,d)=>s+d.net*d.fx,0);return{hs,val,annual,incomeVal,cost,actual}}
 function renderFilter(){memberFilter.innerHTML='<option value="ALL">家族全体</option>'+db.members.map(m=>`<option>${m}</option>`).join('');memberFilter.value=filter}
-function renderHome(){let t=totals(), hi=t.hs.filter(h=>{let a=asset(h.assetId);return a.annualPerShare>0&&annualY(h)/valueY(h)*100>=db.settings.highYield}).reduce((s,h)=>s+valueY(h),0);let lo=t.incomeVal-hi;let months=Array(12).fill(0);db.dividends.filter(d=>!d.cancelled&&inFilter(d.accountId)).forEach(d=>months[new Date(d.date+'T00:00').getMonth()]+=d.net*d.fx);let max=Math.max(...months,1);let next=db.dividends.filter(d=>!d.cancelled&&d.status==='planned'&&inFilter(d.accountId)).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,3);home.innerHTML=`<div class="hero"><div class="eyebrow">2026年 年間配当・分配金見込</div><div class="big">${yen(t.annual)}</div><div class="muted">現在保有ベースの年換算</div><div class="subgrid"><div class="metric">現在ペース年換算<b>${yen(t.annual)}</b></div><div class="metric">今年受取済み<b>${yen(t.actual)}</b></div><div class="metric">配当関連資産<b>${yen(t.incomeVal)}</b></div><div class="metric">総資産評価額<b>${yen(t.val)}</b></div></div></div><div class="cards"><div class="card"><span class="pill tag-hi">高配当 ≥${db.settings.highYield}%</span><h3>${yen(hi)}</h3></div><div class="card"><span class="pill tag-div">配当あり &lt;${db.settings.highYield}%</span><h3>${yen(lo)}</h3></div><div class="card"><div class="muted">投資元本</div><h3>${yen(t.cost)}</h3><div>評価損益 ${yen(t.val-t.cost)}</div></div><div class="card"><div class="muted">登録銘柄</div><h3>${t.hs.length}</h3><div>保有ポジション</div></div></div><div class="section"><h2>年間目標</h2><div class="card"><strong>${yen(t.annual)} / ${yen(db.settings.goal)}</strong><span style="float:right">${(t.annual/db.settings.goal*100).toFixed(1)}%</span><div class="progress"><i style="width:${Math.min(100,t.annual/db.settings.goal*100)}%"></i></div></div></div><div class="section"><h2>次の配当</h2><div class="next">${next.length?next.map(d=>`<div class="card"><strong>${d.date.slice(5).replace('-','/')} ${asset(d.assetId).ticker}</strong><div>予定 約 ${yen(d.net*d.fx)}</div><div class="muted">${money(d.gross,d.currency)}</div></div>`).join(''):'<div class="card">予定なし</div>'}</div></div><div class="section"><h2>月別 配当・分配金</h2><div class="card"><div class="chart">${months.map((v,i)=>`<div class="bar" style="height:${Math.max(8,v/max*100)}%"><span class="amount">${yen(v)}</span><span class="month">${i+1}月</span></div>`).join('')}</div></div></div>`}
+function renderHome(){let t=totals(), hi=t.hs.filter(h=>{let a=asset(h.assetId);return a.annualPerShare>0&&annualY(h)/valueY(h)*100>=db.settings.highYield}).reduce((s,h)=>s+valueY(h),0);let lo=t.incomeVal-hi;let months=Array(12).fill(0);db.dividends.filter(d=>!d.cancelled&&inFilter(d.accountId)&&!(d.status==='planned'&&d.scheduleStatus==='受取済')).forEach(d=>months[new Date(d.date+'T00:00').getMonth()]+=d.net*d.fx);let max=Math.max(...months,1);let next=db.dividends.filter(d=>!d.cancelled&&d.status==='planned'&&d.scheduleStatus!=='受取済'&&inFilter(d.accountId)).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,3);home.innerHTML=`<div class="hero"><div class="eyebrow">2026年 年間配当・分配金見込</div><div class="big">${yen(t.annual)}</div><div class="muted">現在保有ベースの年換算</div><div class="subgrid"><div class="metric">現在ペース年換算<b>${yen(t.annual)}</b></div><div class="metric">今年受取済み<b>${yen(t.actual)}</b></div><div class="metric">配当関連資産<b>${yen(t.incomeVal)}</b></div><div class="metric">総資産評価額<b>${yen(t.val)}</b></div></div></div><div class="cards"><div class="card"><span class="pill tag-hi">高配当 ≥${db.settings.highYield}%</span><h3>${yen(hi)}</h3></div><div class="card"><span class="pill tag-div">配当あり &lt;${db.settings.highYield}%</span><h3>${yen(lo)}</h3></div><div class="card"><div class="muted">投資元本</div><h3>${yen(t.cost)}</h3><div>評価損益 ${yen(t.val-t.cost)}</div></div><div class="card"><div class="muted">登録銘柄</div><h3>${t.hs.length}</h3><div>保有ポジション</div></div></div><div class="section"><h2>年間目標</h2><div class="card"><strong>${yen(t.annual)} / ${yen(db.settings.goal)}</strong><span style="float:right">${(t.annual/db.settings.goal*100).toFixed(1)}%</span><div class="progress"><i style="width:${Math.min(100,t.annual/db.settings.goal*100)}%"></i></div></div></div><div class="section"><h2>次の配当</h2><div class="next">${next.length?next.map(d=>`<div class="card"><strong>${d.scheduleSource==='auto'?Number(d.date.slice(5,7))+'月予定':d.date.slice(5).replace('-','/')} ${asset(d.assetId).ticker}</strong><div>予定 約 ${yen(d.net*d.fx)}</div><div class="muted">${money(d.gross,d.currency)}</div></div>`).join(''):'<div class="card">予定なし</div>'}</div></div><div class="section"><h2>月別 配当・分配金</h2><div class="card"><div class="chart">${months.map((v,i)=>`<div class="bar" style="height:${Math.max(8,v/max*100)}%"><span class="amount">${yen(v)}</span><span class="month">${i+1}月</span></div>`).join('')}</div></div></div>`}
 function renderPortfolio(){let t=totals();let totalVal=t.val||0;portfolio.innerHTML=`<div class="section"><h2>ポートフォリオ</h2><div class="cards" style="grid-template-columns:repeat(2,minmax(0,1fr));margin-bottom:12px"><div class="metric"><span class="eyebrow">資産評価額 合計</span><b>${yen(totalVal)}</b></div><div class="metric"><span class="eyebrow">保有銘柄・口座数</span><b>${t.hs.length}</b></div></div><div class="notice">現在価格は手入力です。設定画面から更新できます。</div><table><thead><tr><th>銘柄</th><th>口座</th><th>株数</th><th>評価額</th><th>構成比</th><th>年間配当</th><th>利回り</th></tr></thead><tbody>${t.hs.map(h=>{let a=asset(h.assetId),ac=acct(h.accountId),v=valueY(h),share=totalVal?v/totalVal*100:0,y=v?annualY(h)/v*100:0,tag=a.annualPerShare===0?'無配':y>=db.settings.highYield?'高配当':'配当あり';return `<tr><td>${a.ticker} <span class="pill ${tag==='高配当'?'tag-hi':tag==='無配'?'tag-none':'tag-div'}">${tag}</span><div class="mini muted">${a.name}</div></td><td>${ac.member}<div class="mini muted">${ac.broker} ${ac.type}</div></td><td>${h.qty}</td><td>${yen(v)}</td><td><strong>${share.toFixed(1)}%</strong></td><td>${yen(annualY(h))}</td><td>${a.annualPerShare?y.toFixed(2)+'%':'—'}</td></tr>`}).join('')}</tbody></table></div>`}
 function renderDividend(){
  let ds=db.dividends.filter(d=>!d.cancelled&&inFilter(d.accountId)).sort((a,b)=>a.date.localeCompare(b.date));
@@ -63,16 +63,16 @@ function renderDividend(){
    const isActual=d.status==='actual', isReceived=d.status==='planned'&&d.scheduleStatus==='受取済';
    const label=isActual?'実績・受取済':isReceived?'予定・✓受取済':'予定';
    let actions='';
-   if(d.status==='planned'&&!isReceived) actions=`<button onclick="receiveDividend('${d.id}')">受取済みにする</button><button onclick="cancelDividend('${d.id}')">取消</button>`;
+   if(d.status==='planned'&&!isReceived) actions=`<button onclick="editPlannedDividend('${d.id}')">予定を修正</button><button onclick="receiveDividend('${d.id}')">受取済みにする</button><button onclick="cancelDividend('${d.id}')">取消</button>`;
    if(isActual) actions=`<button onclick="cancelDividend('${d.id}')">実績を取消</button>`;
-   return `<div class="card" style="margin-bottom:10px"><strong>${d.date}　${asset(d.assetId).ticker}</strong><div>${label}　${yen(d.net*d.fx)} <span class="muted">(${money(d.gross,d.currency)})</span></div>${actions?`<div class="rowactions">${actions}</div>`:''}</div>`;
+   const dateLabel=d.scheduleSource==='auto'?`${d.date.slice(0,4)}年${Number(d.date.slice(5,7))}月予定`:d.date;return `<div class="card" style="margin-bottom:10px"><strong>${dateLabel}　${asset(d.assetId).ticker}</strong><div>${label}　${yen(d.net*d.fx)} <span class="muted">(${money(d.gross,d.currency)})</span></div>${actions?`<div class="rowactions">${actions}</div>`:''}</div>`;
  }).join(''):'<div class="empty">配当データなし</div>'}</div>`;
 }
 function renderAnalysis(){let t=totals();let groups={};t.hs.forEach(h=>{let a=asset(h.assetId);groups[a.sector]=(groups[a.sector]||0)+valueY(h)});let arr=Object.entries(groups).sort((a,b)=>b[1]-a[1]), total=t.val||1;let colors=['#a9d6c7','#f3c7b8','#c8d7f0','#f5dda8','#d8c9e8','#bcded7'];let cur=0,stops=arr.map(([k,v],i)=>{let p=v/total*100,s=`${colors[i%colors.length]} ${cur}% ${cur+p}%`;cur+=p;return s}).join(',');analysis.innerHTML=`<div class="section"><h2>分析</h2><div class="piegrid"><div class="piecard"><h3>資産構成比</h3><div class="pie" style="background:conic-gradient(${stops||'#eee 0 100%'})"></div><div class="legend">${arr.map(([k,v],i)=>`<span><span class="label"><i class="swatch" style="background:${colors[i%colors.length]}"></i>${k}</span><strong>${yen(v)}　${(v/total*100).toFixed(1)}%</strong></span>`).join('')}</div></div><div class="piecard"><h3>配当資産区分</h3><div class="card"><p>配当関連資産 <strong>${yen(t.incomeVal)}</strong></p><p>総資産 <strong>${yen(t.val)}</strong></p><p>配当資産比率 <strong>${(t.incomeVal/(t.val||1)*100).toFixed(1)}%</strong></p></div></div></div></div>`}
 function renderSettings(){settings.innerHTML=`<div class="section"><h2>設定</h2><div class="card"><div class="formgrid"><div class="field"><label>高配当判定基準 (%)</label><input id="setYield" type="number" step="0.1" value="${db.settings.highYield}"></div><div class="field"><label>予定用 USD/JPY</label><input id="setFx" type="number" step="0.01" value="${db.settings.usdJpy}"></div><div class="field"><label>年間配当目標 (円)</label><input id="setGoal" type="number" value="${db.settings.goal}"></div><div class="wide"><button class="primary close" onclick="saveSettings()">設定を保存</button></div></div></div>
 <div class="section"><h2>初期資産をExcelから登録</h2><div class="card importbox"><p class="mini muted">「配当ポートフォリオ_初期資産入力テンプレート_v2.xlsx」を読み込み、内容確認後にSupabaseへ登録します。読み込んだだけでは保存されません。</p><div class="field"><label>Excelファイル（.xlsx）</label><input id="initialAssetFile" type="file" accept=".xlsx,.xls"></div><button class="close" onclick="previewInitialAssets()">Excelを読み込んで確認</button><div id="importResult"></div><div class="mini muted" style="margin-top:8px">「旧NISA」は画面表示を保持し、Supabase内部ではNISA互換として登録します。</div></div></div>
 <div class="section"><h2>市場価格の自動更新</h2><div class="card"><p class="mini muted">Supabase Edge Function「bright-task」から最新市場価格を取得し、登録銘柄の現在価格を更新します。</p><button class="primary close" id="marketPriceBtn" onclick="updateMarketPrices()">市場価格を更新</button><div class="statusbox" id="marketPriceStatus">未更新</div></div></div>
-<div class="section"><h2>銘柄情報の手動調整</h2><div class="notice">自動取得に失敗した場合や、配当・分配金を実データに合わせたい場合はここで修正できます。手入力した内容はSupabaseへ保存されます。</div>${db.assets.map(a=>`<div class="card" style="margin-bottom:8px"><strong>${a.ticker}</strong><div class="formgrid"><div class="field wide"><label>銘柄名</label><input id="name_${a.id}" value="${escapeHtml(a.name||'')}"></div><div class="field"><label>現在価格 (${a.currency})</label><input id="price_${a.id}" type="number" step="0.000001" value="${a.price}"></div><div class="field"><label>年間1株/1口 配当・分配金 (${a.currency})</label><input id="div_${a.id}" type="number" step="0.000001" value="${a.annualPerShare}"></div><div class="field"><label>年間支払回数</label><input id="freq_${a.id}" type="number" min="0" max="24" step="1" value="${a.frequency||0}"></div><div class="field"><label>配当ステータス</label><select id="status_${a.id}">${['増配','据置','減配','無配','無配転落'].map(v=>`<option ${v===(a.dividendStatus||'据置')?'selected':''}>${v}</option>`).join('')}</select></div></div></div>`).join('')}<button class="primary close" onclick="savePrices()">銘柄情報・配当を保存</button></div>
+<div class="section"><h2>銘柄情報の手動調整</h2><div class="notice">自動取得に失敗した場合や、配当・分配金を実データに合わせたい場合はここで修正できます。手入力した内容はSupabaseへ保存されます。</div>${db.assets.map(a=>`<div class="card" style="margin-bottom:8px"><strong>${a.ticker}</strong><div class="formgrid"><div class="field wide"><label>銘柄名</label><input id="name_${a.id}" value="${escapeHtml(a.name||'')}"></div><div class="field"><label>現在価格 (${a.currency})</label><input id="price_${a.id}" type="number" step="0.000001" value="${a.price}"></div><div class="field"><label>年間1株/1口 配当・分配金 (${a.currency})</label><input id="div_${a.id}" type="number" step="0.000001" value="${a.annualPerShare}"></div><div class="field"><label>年間支払回数</label><input id="freq_${a.id}" type="number" min="0" max="24" step="1" value="${a.frequency||0}"></div><div class="field"><label>配当月（例 3,6,9,12）</label><input id="months_${a.id}" value="${(a.months||[]).join(',')}" placeholder="3,6,9,12"></div><div class="field"><label>配当ステータス</label><select id="status_${a.id}">${['増配','据置','減配','無配','無配転落'].map(v=>`<option ${v===(a.dividendStatus||'据置')?'selected':''}>${v}</option>`).join('')}</select></div></div></div>`).join('')}<button class="primary close" onclick="savePrices()">銘柄情報・配当を保存</button><button class="close" onclick="generateDividendSchedules()">今年の月別予定配当を自動生成</button><div class="mini muted" style="margin-top:8px">年間配当・保有数量・配当月から予定額を均等配分します。同じ銘柄・口座・月の予定が既にある場合は重複登録しません。自動生成後も「配当」画面から予定額を修正できます。</div></div>
 <div class="section"><h2>Supabase</h2><div class="card"><p><strong>${remoteMode?'Supabase家族共有モード':'ローカルモード'}</strong></p><p class="mini muted">年間配当目標・予定為替・高配当判定・銘柄名・現在価格・配当/分配金をSupabaseで家族共有します。</p></div></div></div>`}
 function renderAll(){renderFilter();renderHome();renderPortfolio();renderDividend();renderAnalysis();renderSettings()}
 function openSheet(html){sheet.innerHTML=html+'<button class="close" onclick="closeSheet()">閉じる</button>';modal.style.display='flex'} function closeSheet(){modal.style.display='none'}
@@ -99,7 +99,7 @@ function updateDividendForm(){if(typeof dFx!=='undefined')dFx.disabled=dCurrency
 function autoDividendNet(){
  if(typeof dGross==='undefined'||dStatus.value!=='planned')return;
  const ac=acct(dAccount.value),g=+dGross.value||0;
- dNet.value=(ac?.type==='NISA'?g:g*0.8).toFixed(2);
+ dNet.value=(String(ac?.type||'').includes('NISA')?g:g*0.8).toFixed(2);
 }
 async function submitDividend(){
  const gross=+dGross.value, net=+dNet.value;if(!gross||!net)return alert('税引前額と税引後額を入力してください');
@@ -188,6 +188,55 @@ async function updateMarketPrices(){
  }
 }
 
+function parseDividendMonths(v){
+ return [...new Set(String(v||'').split(/[,、\s]+/).map(Number).filter(n=>Number.isInteger(n)&&n>=1&&n<=12))].sort((a,b)=>a-b);
+}
+function estimatedNetForAccount(gross,accountType){return String(accountType||'').includes('NISA')?gross:gross*0.8}
+
+async function generateDividendSchedules(){
+ if(!remoteMode||!remoteContext)return alert('Supabaseへログインした状態で実行してください。');
+ const year=new Date().getFullYear();
+ const candidates=[];
+ for(const h of holdings()){
+   const a=asset(h.assetId),ac=acct(h.accountId),months=(a?.months||[]);
+   if(!a||!ac||!a.annualPerShare||!months.length)continue;
+   const grossAnnual=h.qty*a.annualPerShare;
+   const grossEach=grossAnnual/months.length;
+   for(const m of months){
+     const date=`${year}-${String(m).padStart(2,'0')}-01`;
+     candidates.push({h,a,ac,m,date,gross:grossEach,net:estimatedNetForAccount(grossEach,ac.type)});
+   }
+ }
+ if(!candidates.length)return alert('自動生成できる予定がありません。各銘柄の年間配当・配当月を設定してください。');
+ const {data:existing,error:ee}=await sb.from('dividend_schedules').select('id,account_id,security_id,expected_date,status').eq('family_id',remoteContext.family.id).gte('expected_date',`${year}-01-01`).lte('expected_date',`${year}-12-31`).neq('status','取消');
+ if(ee)return alert('既存予定を確認できません：'+ee.message);
+ let added=0,skipped=0,failed=[];
+ for(const c of candidates){
+   const dup=(existing||[]).some(x=>x.account_id===c.ac.id&&x.security_id===c.a.id&&String(x.expected_date).slice(0,7)===c.date.slice(0,7));
+   if(dup){skipped++;continue;}
+   const row={family_id:remoteContext.family.id,member_id:c.ac.memberId,account_id:c.ac.id,security_id:c.a.id,expected_date:c.date,quantity:c.h.qty,dividend_per_share:c.gross/c.h.qty,gross_amount:c.gross,estimated_net_amount:c.net,currency:c.a.currency,estimated_fx_rate:c.a.currency==='USD'?db.settings.usdJpy:null,status:'予定',schedule_source:'auto'};
+   const {error}=await sb.from('dividend_schedules').insert(row);
+   if(error)failed.push(`${c.a.ticker} ${c.m}月: ${error.message}`); else added++;
+ }
+ await loadRemoteData();
+ alert(`月別予定配当を生成しました。\n新規 ${added}件 / 既存スキップ ${skipped}件 / 失敗 ${failed.length}件${failed.length?'\n\n'+failed.slice(0,5).join('\n'):''}`);
+}
+
+function editPlannedDividend(id){
+ const d=db.dividends.find(x=>x.id===id);if(!d)return;
+ openSheet(`<h2>予定配当を修正</h2><div class="formgrid"><div class="field"><label>予定日</label><input id="eDate" type="date" value="${d.date}"></div><div class="field"><label>税引前額</label><input id="eGross" type="number" step="0.01" value="${d.gross}"></div><div class="field"><label>税引後見込額</label><input id="eNet" type="number" step="0.01" value="${d.net}"></div><div class="field"><label>予定為替</label><input id="eFx" type="number" step="0.01" value="${d.fx}"></div><button class="primary close wide" onclick="savePlannedDividend('${id}')">修正を保存</button></div>`);
+}
+async function savePlannedDividend(id){
+ const d=db.dividends.find(x=>x.id===id);if(!d)return;
+ const gross=+eGross.value,net=+eNet.value,fx=d.currency==='JPY'?1:+eFx.value;
+ if(!gross||!net)return alert('税引前額と税引後見込額を入力してください。');
+ if(!remoteMode){d.date=eDate.value;d.gross=gross;d.net=net;d.fx=fx;save();closeSheet();return;}
+ const h=holdings().find(x=>x.assetId===d.assetId&&x.accountId===d.accountId),qty=h?.qty||0;
+ const {error}=await sb.from('dividend_schedules').update({expected_date:eDate.value,quantity:qty,dividend_per_share:qty?gross/qty:gross,gross_amount:gross,estimated_net_amount:net,estimated_fx_rate:d.currency==='USD'?fx:null,schedule_source:'manual'}).eq('id',id);
+ if(error)return alert('予定を修正できません：'+error.message);
+ closeSheet();await loadRemoteData();alert('予定配当を修正しました。');
+}
+
 async function savePrices(){
  if(!remoteMode){
    db.assets.forEach(a=>{
@@ -195,6 +244,7 @@ async function savePrices(){
      a.price=+document.getElementById('price_'+a.id).value;
      a.annualPerShare=+document.getElementById('div_'+a.id).value;
      a.frequency=+document.getElementById('freq_'+a.id).value||0;
+     a.months=parseDividendMonths(document.getElementById('months_'+a.id).value);
      a.dividendStatus=document.getElementById('status_'+a.id).value;
    });save();return;
  }
@@ -204,6 +254,7 @@ async function savePrices(){
    price:+document.getElementById('price_'+a.id).value,
    annual:+document.getElementById('div_'+a.id).value,
    frequency:+document.getElementById('freq_'+a.id).value||0,
+   months:parseDividendMonths(document.getElementById('months_'+a.id).value),
    dividendStatus:document.getElementById('status_'+a.id).value
  }));
  const failures=[];
@@ -213,6 +264,7 @@ async function savePrices(){
      current_price:u.price,
      annual_dividend_per_share:u.annual,
      dividend_frequency:u.frequency,
+     dividend_months:u.months,
      dividend_status:u.dividendStatus
    }).eq('id',u.id);
    if(error)failures.push(`${asset(u.id)?.ticker||u.id}: ${error.message}`);
@@ -387,8 +439,8 @@ async function loadRemoteData(){
   ]);
   const err=[mres,ares,sres,tres,dsres,dpres].find(x=>x.error)?.error;if(err){alert('Supabaseデータ読込エラー：'+err.message);return;}
   const memberMap=Object.fromEntries((mres.data||[]).map(x=>[x.id,x.display_name]));
-  db={settings:{usdJpy:+(setres.data?.usd_jpy_planning_rate||150),goal:+(goalres.data?.target_amount_jpy||0),highYield:+(setres.data?.high_dividend_threshold||4)},members:(mres.data||[]).map(x=>x.display_name),accounts:(ares.data||[]).map(x=>({id:x.id,member:memberMap[x.member_id]||'Member',memberId:x.member_id,broker:x.broker_name,type:x.account_name||x.account_type,currency:x.currency})),assets:(sres.data||[]).map(x=>({id:x.id,ticker:x.symbol,name:x.name,kind:x.asset_type,sector:x.sector||'未分類',currency:x.currency,price:+x.current_price,annualPerShare:+x.annual_dividend_per_share,frequency:x.dividend_frequency||0,dividendStatus:x.dividend_status||'据置',months:[]})),transactions:(tres.data||[]).map(x=>({id:x.id,assetId:x.security_id,accountId:x.account_id,type:x.transaction_type,date:x.trade_date,qty:+x.quantity,price:+x.price,fund:x.funding_source,cancelled:false})),dividends:[
-    ...(dsres.data||[]).map(x=>({id:x.id,assetId:x.security_id,accountId:x.account_id,date:x.expected_date,status:'planned',gross:+x.gross_amount,net:+(x.estimated_net_amount??x.gross_amount),currency:x.currency,fx:x.currency==='JPY'?1:+(x.estimated_fx_rate||db?.settings?.usdJpy||150),cancelled:false,scheduleStatus:x.status})),
+  db={settings:{usdJpy:+(setres.data?.usd_jpy_planning_rate||150),goal:+(goalres.data?.target_amount_jpy||0),highYield:+(setres.data?.high_dividend_threshold||4)},members:(mres.data||[]).map(x=>x.display_name),accounts:(ares.data||[]).map(x=>({id:x.id,member:memberMap[x.member_id]||'Member',memberId:x.member_id,broker:x.broker_name,type:x.account_name||x.account_type,currency:x.currency})),assets:(sres.data||[]).map(x=>({id:x.id,ticker:x.symbol,name:x.name,kind:x.asset_type,sector:x.sector||'未分類',currency:x.currency,price:+x.current_price,annualPerShare:+x.annual_dividend_per_share,frequency:x.dividend_frequency||0,dividendStatus:x.dividend_status||'据置',months:Array.isArray(x.dividend_months)?x.dividend_months:[]})),transactions:(tres.data||[]).map(x=>({id:x.id,assetId:x.security_id,accountId:x.account_id,type:x.transaction_type,date:x.trade_date,qty:+x.quantity,price:+x.price,fund:x.funding_source,cancelled:false})),dividends:[
+    ...(dsres.data||[]).map(x=>({id:x.id,assetId:x.security_id,accountId:x.account_id,date:x.expected_date,status:'planned',gross:+x.gross_amount,net:+(x.estimated_net_amount??x.gross_amount),currency:x.currency,fx:x.currency==='JPY'?1:+(x.estimated_fx_rate||db?.settings?.usdJpy||150),cancelled:false,scheduleStatus:x.status,scheduleSource:x.schedule_source||'manual'})),
     ...(dpres.data||[]).map(x=>({id:x.id,assetId:x.security_id,accountId:x.account_id,date:x.payment_date,status:'actual',gross:+x.gross_amount,net:+x.net_amount,currency:x.currency,fx:x.currency==='JPY'?1:+(x.fx_rate||1),cancelled:false,distributionType:x.distribution_type||'配当'}))
   ],priceUpdated:new Date().toISOString().slice(0,10)};
   remoteMode=true;filter='ALL';renderAll();
