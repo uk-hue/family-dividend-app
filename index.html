@@ -16,8 +16,8 @@
 <meta name="theme-color" content="#17785a"><meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="配当ポートフォリオ">
 <link rel="apple-touch-icon" href="./icons/icon-180.png"></head><body>
-<div class="authscreen" id="authScreen"><div class="authcard"><h1>配当ポートフォリオ</h1><p class="muted">PWA家族共有 v0.9.6.2</p><div id="setupBox"><div class="field"><label>Project URL</label><input id="sbUrl" placeholder="https://xxxxx.supabase.co"></div><div class="field"><label>Publishable key</label><input id="sbKey" type="password" placeholder="sb_publishable_..."></div><button class="primary close" id="saveConnection">接続設定を保存</button><div class="notice">Secret key / service_role key は入力しないでください。</div></div><div id="loginBox" class="hide"><div class="field"><label>メールアドレス</label><input id="loginEmail" type="email" autocomplete="username"></div><div class="field"><label>パスワード</label><input id="loginPassword" type="password" autocomplete="current-password"></div><button class="primary close" id="loginBtn">ログイン</button><button class="close" id="changeConnection">接続設定を変更</button></div><div class="statusbox" id="authStatus">接続設定を入力してください。</div></div></div>
-<header><div><div class="brand">配当ポートフォリオ <span class="mini muted">PWA家族共有 v0.9.6.2</span></div><div class="userbar" id="userBar"></div></div><div style="display:flex;gap:8px;align-items:center"><select id="memberFilter" class="filter"></select><button id="logoutBtn" class="filter">ログアウト</button></div></header>
+<div class="authscreen" id="authScreen"><div class="authcard"><h1>配当ポートフォリオ</h1><p class="muted">PWA家族共有 v0.9.6.3</p><div id="setupBox"><div class="field"><label>Project URL</label><input id="sbUrl" placeholder="https://xxxxx.supabase.co"></div><div class="field"><label>Publishable key</label><input id="sbKey" type="password" placeholder="sb_publishable_..."></div><button class="primary close" id="saveConnection">接続設定を保存</button><div class="notice">Secret key / service_role key は入力しないでください。</div></div><div id="loginBox" class="hide"><div class="field"><label>メールアドレス</label><input id="loginEmail" type="email" autocomplete="username"></div><div class="field"><label>パスワード</label><input id="loginPassword" type="password" autocomplete="current-password"></div><button class="primary close" id="loginBtn">ログイン</button><button class="close" id="changeConnection">接続設定を変更</button></div><div class="statusbox" id="authStatus">接続設定を入力してください。</div></div></div>
+<header><div><div class="brand">配当ポートフォリオ <span class="mini muted">PWA家族共有 v0.9.6.3</span></div><div class="userbar" id="userBar"></div></div><div style="display:flex;gap:8px;align-items:center"><select id="memberFilter" class="filter"></select><button id="logoutBtn" class="filter">ログアウト</button></div></header>
 <div class="wrap">
 <section id="home"></section>
 <section id="portfolio" class="hide"></section>
@@ -378,20 +378,66 @@ async function saveGeneralAsset(){
  closeSheet();await loadRemoteData();alert('資産を登録しました。');
 }
 
+function filterManageAssets(q){
+ const needle=(q||'').trim().toLowerCase();
+ const cards=[...document.querySelectorAll('.manage-asset-card')];
+ let shown=0;
+ cards.forEach(c=>{
+   const ok=!needle||(c.dataset.search||'').includes(needle);
+   c.style.display=ok?'':'none';
+   if(ok)shown++;
+ });
+ const el=document.getElementById('manageAssetCount');
+ if(el)el.textContent=`${shown} / ${cards.length}件を表示`;
+}
+function filterManageAccounts(q){
+ const needle=(q||'').trim().toLowerCase();
+ const cards=[...document.querySelectorAll('.manage-account-card')];
+ let shown=0;
+ cards.forEach(c=>{
+   const ok=!needle||(c.dataset.search||'').includes(needle);
+   c.style.display=ok?'':'none';
+   if(ok)shown++;
+ });
+ const el=document.getElementById('manageAccountCount');
+ if(el)el.textContent=`${shown} / ${cards.length}件を表示`;
+}
 function manageAssetsAccounts(){
  const heldAssetIds=new Set(holdings().map(h=>h.assetId));
  const heldAccountIds=new Set(holdings().map(h=>h.accountId));
- const assets=(db.assets||[]).map(a=>`<div class="card" style="margin-bottom:8px">
- <strong>${escapeHtml(a.ticker)}</strong> ${escapeHtml(a.name||'')}<div class="mini muted">${escapeHtml(a.kind||'')} ${heldAssetIds.has(a.id)?'｜現在保有あり':'｜現在保有なし'}</div>
- <button class="danger close" onclick="deactivateAsset('${a.id}')">選択リストから削除</button></div>`).join('');
- const accounts=(db.accounts||[]).map(a=>`<div class="card" style="margin-bottom:8px">
- <strong>${escapeHtml(a.member)}</strong><div>${escapeHtml(a.broker)}｜${escapeHtml(a.type||'')}</div>
- <div class="mini muted">${heldAccountIds.has(a.id)?'現在保有あり':'現在保有なし'}</div>
- <button class="danger close" onclick="deactivateAccount('${a.id}')">選択リストから削除</button></div>`).join('');
+ const assets=(db.assets||[]).map(a=>{
+   const relatedAccounts=(db.accounts||[]).filter(ac=>holdings().some(h=>h.assetId===a.id&&h.accountId===ac.id));
+   const accountText=relatedAccounts.map(ac=>`${ac.member} ${ac.broker} ${ac.type||''}`).join(' ');
+   const searchText=`${a.ticker||''} ${a.name||''} ${a.kind||''} ${a.sector||''} ${accountText}`.toLowerCase();
+   return `<div class="card manage-asset-card" data-search="${escapeHtml(searchText)}" style="margin-bottom:8px">
+   <strong>${escapeHtml(a.ticker)}</strong> ${escapeHtml(a.name||'')}
+   <div class="mini muted">${escapeHtml(a.kind||'')} ${heldAssetIds.has(a.id)?'｜現在保有あり':'｜現在保有なし'}</div>
+   ${accountText?`<div class="mini muted">${escapeHtml(accountText)}</div>`:''}
+   <button class="danger close" onclick="deactivateAsset('${a.id}')">選択リストから削除</button></div>`;
+ }).join('');
+
+ const accounts=(db.accounts||[]).map(a=>{
+   const searchText=`${a.member||''} ${a.broker||''} ${a.type||''}`.toLowerCase();
+   return `<div class="card manage-account-card" data-search="${escapeHtml(searchText)}" style="margin-bottom:8px">
+   <strong>${escapeHtml(a.member)}</strong><div>${escapeHtml(a.broker)}｜${escapeHtml(a.type||'')}</div>
+   <div class="mini muted">${heldAccountIds.has(a.id)?'現在保有あり':'現在保有なし'}</div>
+   <button class="danger close" onclick="deactivateAccount('${a.id}')">選択リストから削除</button></div>`;
+ }).join('');
+
  openSheet(`<h2>資産・口座の整理</h2>
  <div class="notice">「選択リストから削除」はSupabase上で非表示（is_active=false）にします。今後の銘柄・口座候補から消えます。失敗登録などの不要データ整理にも使えます。</div>
- <h3>資産</h3>${assets||'<div class="mini muted">登録なし</div>'}
- <h3 style="margin-top:18px">口座</h3>${accounts||'<div class="mini muted">登録なし</div>'}`);
+
+ <h3>資産</h3>
+ <div class="field"><label>銘柄を検索</label>
+ <input id="manageAssetSearch" type="search" placeholder="例：NTT / 9432 / ○○銀行 / 普通預金 / MMF" oninput="filterManageAssets(this.value)"></div>
+ <div class="mini muted" id="manageAssetCount" style="margin-bottom:8px">${db.assets.length} / ${db.assets.length}件を表示</div>
+ ${assets||'<div class="mini muted">登録なし</div>'}
+
+ <h3 style="margin-top:18px">口座</h3>
+ <div class="field"><label>口座を検索</label>
+ <input id="manageAccountSearch" type="search" placeholder="名義人・証券会社・銀行名・口座名で検索" oninput="filterManageAccounts(this.value)"></div>
+ <div class="mini muted" id="manageAccountCount" style="margin-bottom:8px">${db.accounts.length} / ${db.accounts.length}件を表示</div>
+ ${accounts||'<div class="mini muted">登録なし</div>'}`);
 }
 async function deactivateAsset(id){
  const a=db.assets.find(x=>x.id===id);
