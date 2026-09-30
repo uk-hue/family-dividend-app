@@ -16,8 +16,8 @@
 <meta name="theme-color" content="#17785a"><meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="配当ポートフォリオ">
 <link rel="apple-touch-icon" href="./icons/icon-180.png"></head><body>
-<div class="authscreen" id="authScreen"><div class="authcard"><h1>配当ポートフォリオ</h1><p class="muted">PWA家族共有 v0.9.5.2</p><div id="setupBox"><div class="field"><label>Project URL</label><input id="sbUrl" placeholder="https://xxxxx.supabase.co"></div><div class="field"><label>Publishable key</label><input id="sbKey" type="password" placeholder="sb_publishable_..."></div><button class="primary close" id="saveConnection">接続設定を保存</button><div class="notice">Secret key / service_role key は入力しないでください。</div></div><div id="loginBox" class="hide"><div class="field"><label>メールアドレス</label><input id="loginEmail" type="email" autocomplete="username"></div><div class="field"><label>パスワード</label><input id="loginPassword" type="password" autocomplete="current-password"></div><button class="primary close" id="loginBtn">ログイン</button><button class="close" id="changeConnection">接続設定を変更</button></div><div class="statusbox" id="authStatus">接続設定を入力してください。</div></div></div>
-<header><div><div class="brand">配当ポートフォリオ <span class="mini muted">PWA家族共有 v0.9.5.2</span></div><div class="userbar" id="userBar"></div></div><div style="display:flex;gap:8px;align-items:center"><select id="memberFilter" class="filter"></select><button id="logoutBtn" class="filter">ログアウト</button></div></header>
+<div class="authscreen" id="authScreen"><div class="authcard"><h1>配当ポートフォリオ</h1><p class="muted">PWA家族共有 v0.9.6</p><div id="setupBox"><div class="field"><label>Project URL</label><input id="sbUrl" placeholder="https://xxxxx.supabase.co"></div><div class="field"><label>Publishable key</label><input id="sbKey" type="password" placeholder="sb_publishable_..."></div><button class="primary close" id="saveConnection">接続設定を保存</button><div class="notice">Secret key / service_role key は入力しないでください。</div></div><div id="loginBox" class="hide"><div class="field"><label>メールアドレス</label><input id="loginEmail" type="email" autocomplete="username"></div><div class="field"><label>パスワード</label><input id="loginPassword" type="password" autocomplete="current-password"></div><button class="primary close" id="loginBtn">ログイン</button><button class="close" id="changeConnection">接続設定を変更</button></div><div class="statusbox" id="authStatus">接続設定を入力してください。</div></div></div>
+<header><div><div class="brand">配当ポートフォリオ <span class="mini muted">PWA家族共有 v0.9.6</span></div><div class="userbar" id="userBar"></div></div><div style="display:flex;gap:8px;align-items:center"><select id="memberFilter" class="filter"></select><button id="logoutBtn" class="filter">ログアウト</button></div></header>
 <div class="wrap">
 <section id="home"></section>
 <section id="portfolio" class="hide"></section>
@@ -70,6 +70,7 @@ function assetGroup(a){
  if(k==='米国株')return '米国株';
  if(k.includes('ETF'))return 'ETF';
  if(k==='投資信託')return '投資信託';
+ if(k==='債券')return '債券';
  if(k==='MMF')return 'MMF';
  if(k==='銀行預金'||k==='預金')return '銀行預金';
  return 'その他';
@@ -77,7 +78,7 @@ function assetGroup(a){
 function setAssetTypeFilter(v){assetTypeFilter=v;renderPortfolio()}
 function renderPortfolio(){
  let t=totals(),totalVal=t.val||0;
- const tabs=['すべて','日本株','米国株','ETF','投資信託','MMF','銀行預金','その他'];
+ const tabs=['すべて','日本株','米国株','ETF','投資信託','債券','MMF','銀行預金','その他'];
  const hs=t.hs.filter(h=>assetTypeFilter==='すべて'||assetGroup(asset(h.assetId))===assetTypeFilter);
  portfolio.innerHTML=`<div class="section"><h2>資産</h2>
  <div class="cards" style="grid-template-columns:repeat(2,minmax(0,1fr));margin-bottom:12px">
@@ -165,9 +166,17 @@ function renderAnalysis(){
 }
 function renderSettings(){settings.innerHTML=`<div class="section"><h2>設定</h2><div class="card"><div class="formgrid"><div class="field"><label>高配当判定基準 (%)</label><input id="setYield" type="number" step="0.1" value="${db.settings.highYield}"></div><div class="field"><label>予定用 USD/JPY</label><input id="setFx" type="number" step="0.01" value="${db.settings.usdJpy}"></div><div class="field"><label>年間配当目標 (円)</label><input id="setGoal" type="number" value="${db.settings.goal}"></div><div class="wide"><button class="primary close" onclick="saveSettings()">設定を保存</button></div></div></div>
 <div class="section"><h2>初期資産をExcelから登録</h2><div class="card importbox"><p class="mini muted">「配当ポートフォリオ_初期資産入力テンプレート_v2.xlsx」を読み込み、内容確認後にSupabaseへ登録します。読み込んだだけでは保存されません。</p><div class="field"><label>Excelファイル（.xlsx）</label><input id="initialAssetFile" type="file" accept=".xlsx,.xls"></div><button class="close" onclick="previewInitialAssets()">Excelを読み込んで確認</button><div id="importResult"></div><div class="mini muted" style="margin-top:8px">「旧NISA」は画面表示を保持し、Supabase内部ではNISA互換として登録します。</div></div></div>
+<div class="section"><h2>資産・口座を追加</h2><div class="card">
+<p class="mini muted">新しい銘柄と新しい口座をここから登録できます。既存の銘柄・口座を使うこともできます。</p>
+<button class="primary close" onclick="generalAssetForm()">株式・ETF・投資信託・債券を追加</button>
+</div></div>
+<div class="section"><h2>資産・口座の整理</h2><div class="card">
+<p class="mini muted">不要になった資産・口座は「非表示にする」と、以後の選択リストから消えます。過去データは削除せず残します。</p>
+<button class="close" onclick="manageAssetsAccounts()">資産・口座を整理</button>
+</div></div>
 <div class="section"><h2>MMF・銀行預金</h2><div class="card"><p class="mini muted">MMFや銀行預金を手入力で資産管理できます。銀行預金は銀行名と普通・定期・外貨預金などの種別を登録できます。</p><button class="primary close" onclick="manualAssetForm()">MMF・銀行預金を追加</button></div></div>
 <div class="section"><h2>市場価格の自動更新</h2><div class="card"><p class="mini muted">Supabase Edge Function「bright-task」から最新市場価格を取得し、登録銘柄の現在価格を更新します。</p><button class="primary close" id="marketPriceBtn" onclick="updateMarketPrices()">市場価格を更新</button><div class="statusbox" id="marketPriceStatus">未更新</div></div></div>
-<div class="section"><h2>銘柄情報の手動調整</h2><div class="notice">自動取得に失敗した場合や、配当・分配金を実データに合わせたい場合はここで修正できます。手入力した内容はSupabaseへ保存されます。</div><div class="field" style="margin:12px 0"><label>銘柄を検索</label><input id="securitySearch" type="search" placeholder="例：NTT / 9432 / NVDA" oninput="filterSecuritySettings(this.value)"></div><div class="mini muted" id="securitySearchCount" style="margin-bottom:8px">${db.assets.length}銘柄を表示</div>${db.assets.map(a=>`<div class="card security-setting-card" data-search="${escapeHtml((a.ticker+' '+(a.name||'')).toLowerCase())}" style="margin-bottom:8px"><strong>${a.ticker}</strong><div class="formgrid"><div class="field wide"><label>銘柄名</label><input id="name_${a.id}" value="${escapeHtml(a.name||'')}"></div><div class="field"><label>現在価格 (${a.currency})</label><input id="price_${a.id}" type="number" step="0.000001" value="${a.price}"></div><div class="field"><label>年間1株/1口 配当・分配金 (${a.currency})</label><input id="div_${a.id}" type="number" step="0.000001" value="${a.annualPerShare}"></div><div class="field"><label>年間支払回数</label><input id="freq_${a.id}" type="number" min="0" max="24" step="1" value="${a.frequency||0}"></div><div class="field"><label>配当月（例 3,6,9,12）</label><input id="months_${a.id}" value="${(a.months||[]).join(',')}" placeholder="3,6,9,12"></div><div class="field"><label>配当ステータス</label><select id="status_${a.id}">${['増配','据置','減配','無配','無配転落'].map(v=>`<option ${v===(a.dividendStatus||'据置')?'selected':''}>${v}</option>`).join('')}</select></div></div></div>`).join('')}<button class="primary close" onclick="savePrices()">銘柄情報・配当を保存</button><button class="close" onclick="generateDividendSchedules()">今年の月別予定配当を自動生成</button><div class="mini muted" style="margin-top:8px">年間配当・保有数量・配当月から予定額を均等配分します。同じ銘柄・口座・月の予定が既にある場合は重複登録しません。自動生成後も「配当」画面から予定額を修正できます。</div></div>
+<div class="section"><h2>銘柄情報の手動調整</h2><div class="notice">自動取得に失敗した場合や、配当・分配金を実データに合わせたい場合はここで修正できます。手入力した内容はSupabaseへ保存されます。</div><div class="field" style="margin:12px 0"><label>銘柄を検索</label><input id="securitySearch" type="search" placeholder="例：NTT / 9432 / NVDA" oninput="filterSecuritySettings(this.value)"></div><div class="mini muted" id="securitySearchCount" style="margin-bottom:8px">${db.assets.length}銘柄を表示</div>${db.assets.map(a=>`<div class="card security-setting-card" data-search="${escapeHtml((a.ticker+' '+(a.name||'')).toLowerCase())}" style="margin-bottom:8px"><strong>${escapeHtml(a.ticker)}</strong> <span class="mini muted">${escapeHtml(a.kind||'')}</span><div class="formgrid"><div class="field wide"><label>銘柄名</label><input id="name_${a.id}" value="${escapeHtml(a.name||'')}"></div><div class="field"><label>現在価格 (${a.currency})</label><input id="price_${a.id}" type="number" step="0.000001" value="${a.price}"></div><div class="field"><label>年間1株/1口 配当・分配金 (${a.currency})</label><input id="div_${a.id}" type="number" step="0.000001" value="${a.annualPerShare}"></div><div class="field"><label>年間支払回数</label><input id="freq_${a.id}" type="number" min="0" max="24" step="1" value="${a.frequency||0}"></div><div class="field"><label>配当月（例 3,6,9,12）</label><input id="months_${a.id}" value="${(a.months||[]).join(',')}" placeholder="3,6,9,12"></div><div class="field"><label>配当ステータス</label><select id="status_${a.id}">${['増配','据置','減配','無配','無配転落'].map(v=>`<option ${v===(a.dividendStatus||'据置')?'selected':''}>${v}</option>`).join('')}</select></div></div></div>`).join('')}<button class="primary close" onclick="savePrices()">銘柄情報・配当を保存</button><button class="close" onclick="generateDividendSchedules()">今年の月別予定配当を自動生成</button><div class="mini muted" style="margin-top:8px">年間配当・保有数量・配当月から予定額を均等配分します。同じ銘柄・口座・月の予定が既にある場合は重複登録しません。自動生成後も「配当」画面から予定額を修正できます。</div></div>
 <div class="section"><h2>Supabase</h2><div class="card"><p><strong>${remoteMode?'Supabase家族共有モード':'ローカルモード'}</strong></p><p class="mini muted">年間配当目標・予定為替・高配当判定・銘柄名・現在価格・配当/分配金をSupabaseで家族共有します。</p></div></div></div>`}
 
 function filterSecuritySettings(q){
@@ -210,6 +219,162 @@ async function saveHoldingAdjustment(assetId,accountId){
  if(error)return alert('数量を保存できません：'+error.message);
  closeSheet();await loadRemoteData();alert('数量を更新しました。');
 }
+
+function newAssetMemberOptions(){
+ const members=(db.memberRecords||[]);
+ return members.map(m=>`<option value="${m.id}">${escapeHtml(m.display_name)}</option>`).join('');
+}
+function generalAssetForm(){
+ const assetOpts=(db.assets||[]).map(a=>`<option value="${a.id}">${escapeHtml(a.ticker)}｜${escapeHtml(a.name||'')}｜${escapeHtml(a.kind||'')}</option>`).join('');
+ const accountOpts=(db.accounts||[]).filter(a=>filter==='ALL'||a.member===filter).map(a=>`<option value="${a.id}">${escapeHtml(a.member)}｜${escapeHtml(a.broker)}｜${escapeHtml(a.type||'')}</option>`).join('');
+ openSheet(`<h2>資産を追加</h2>
+ <div class="field"><label>銘柄</label><select id="gaAssetMode" onchange="toggleGeneralAssetFields()"><option value="new">新しい銘柄を入力</option><option value="existing">既存の銘柄から選択</option></select></div>
+ <div id="gaNewAsset">
+   <div class="field"><label>資産種別</label><select id="gaKind" onchange="toggleBondFields()"><option>日本株</option><option>米国株</option><option>ETF</option><option>投資信託</option><option>債券</option></select></div>
+   <div class="field"><label>銘柄コード・識別名</label><input id="gaSymbol" placeholder="例：9432 / NVDA / 個人向け国債10年"></div>
+   <div class="field"><label>銘柄名</label><input id="gaName" placeholder="例：日本電信電話 / 米国債 2030"></div>
+   <div class="field"><label>通貨</label><select id="gaCurrency"><option>JPY</option><option>USD</option></select></div>
+   <div class="field"><label>現在価格・評価単価</label><input id="gaCurrentPrice" type="number" step="any" inputmode="decimal" placeholder="例：150 / 1"></div>
+   <div class="field"><label>年間1株・1口あたり配当/利息</label><input id="gaAnnual" type="number" step="any" inputmode="decimal" value="0"></div>
+   <div id="gaBondFields" class="hide">
+     <div class="field"><label>債券の利率（年率 %・任意）</label><input id="gaBondRate" type="number" min="0" step="0.001" inputmode="decimal"></div>
+     <div class="field"><label>満期日（任意）</label><input id="gaBondMaturity" type="date"></div>
+     <div class="notice">債券を簡易登録する場合は「現在価格・評価単価＝1」「保有数量＝現在の評価額」とすると管理しやすくなります。</div>
+   </div>
+ </div>
+ <div id="gaExistingAsset" class="hide"><div class="field"><label>既存銘柄</label><select id="gaAssetId">${assetOpts}</select></div></div>
+
+ <hr style="border:0;border-top:1px solid var(--line);margin:18px 0">
+ <div class="field"><label>口座</label><select id="gaAccountMode" onchange="toggleGeneralAccountFields()"><option value="new">新しい口座を入力</option><option value="existing">既存の口座から選択</option></select></div>
+ <div id="gaNewAccount">
+   <div class="field"><label>名義人</label><select id="gaMember">${newAssetMemberOptions()}</select></div>
+   <div class="field"><label>証券会社・銀行名</label><input id="gaBroker" placeholder="例：SBI証券 / ○○銀行"></div>
+   <div class="field"><label>口座種類・口座名</label><input id="gaAccountName" placeholder="例：NISA / 特定 / 一般 / 債券口座"></div>
+   <div class="mini muted">NISAと入力した場合はNISA口座、それ以外はSupabase内部では特定口座互換として保存し、入力した口座名を画面表示します。</div>
+ </div>
+ <div id="gaExistingAccount" class="hide"><div class="field"><label>既存口座</label><select id="gaAccountId">${accountOpts}</select></div></div>
+
+ <hr style="border:0;border-top:1px solid var(--line);margin:18px 0">
+ <div class="field"><label>保有株数・口数・数量</label><input id="gaQty" type="number" min="0" step="any" inputmode="decimal"></div>
+ <div class="field"><label>取得単価</label><input id="gaPrice" type="number" min="0" step="any" inputmode="decimal"></div>
+ <button class="primary close" onclick="saveGeneralAsset()">資産を登録</button>`);
+ toggleGeneralAssetFields();toggleGeneralAccountFields();toggleBondFields();
+}
+function toggleGeneralAssetFields(){
+ const isNew=document.getElementById('gaAssetMode')?.value==='new';
+ document.getElementById('gaNewAsset')?.classList.toggle('hide',!isNew);
+ document.getElementById('gaExistingAsset')?.classList.toggle('hide',isNew);
+}
+function toggleGeneralAccountFields(){
+ const isNew=document.getElementById('gaAccountMode')?.value==='new';
+ document.getElementById('gaNewAccount')?.classList.toggle('hide',!isNew);
+ document.getElementById('gaExistingAccount')?.classList.toggle('hide',isNew);
+}
+function toggleBondFields(){
+ const bond=document.getElementById('gaKind')?.value==='債券';
+ document.getElementById('gaBondFields')?.classList.toggle('hide',!bond);
+}
+async function saveGeneralAsset(){
+ if(!remoteMode)return alert('Supabaseへログインした状態で実行してください。');
+ const fid=remoteContext.family.id,uid=remoteContext.user.id;
+ const newAsset=document.getElementById('gaAssetMode').value==='new';
+ const newAccount=document.getElementById('gaAccountMode').value==='new';
+ let sec,ac;
+
+ if(newAsset){
+   const kind=document.getElementById('gaKind').value;
+   const symbol=document.getElementById('gaSymbol').value.trim();
+   let name=document.getElementById('gaName').value.trim();
+   const currency=document.getElementById('gaCurrency').value;
+   let currentPrice=Number(document.getElementById('gaCurrentPrice').value);
+   let annual=Number(document.getElementById('gaAnnual').value||0);
+   if(!symbol)return alert('銘柄コード・識別名を入力してください。');
+   if(!name)name=symbol;
+   if(!Number.isFinite(currentPrice)||currentPrice<=0)return alert('現在価格・評価単価を入力してください。');
+   if(kind==='債券'){
+     const rate=Number(document.getElementById('gaBondRate').value||0);
+     const maturity=document.getElementById('gaBondMaturity').value;
+     if(!Number.isFinite(rate)||rate<0)return alert('債券の利率を確認してください。');
+     if(rate>0&&currentPrice===1)annual=rate/100;
+     if(maturity)name+=`（満期 ${maturity}）`;
+   }
+   const existing=db.assets.find(a=>(a.ticker||'').toLowerCase()===symbol.toLowerCase());
+   if(existing)return alert('同じ銘柄コード・識別名が既にあります。「既存の銘柄から選択」を使用してください。');
+   const sr=await sb.from('securities').insert({
+     family_id:fid,symbol,name,asset_type:kind,currency,sector:kind==='債券'?'債券':'未分類',
+     current_price:currentPrice,annual_dividend_per_share:annual,dividend_frequency:annual>0?1:0,
+     dividend_status:annual>0?'据置':'無配',is_active:true
+   }).select('*').single();
+   if(sr.error)return alert('銘柄登録に失敗：'+sr.error.message);
+   sec=sr.data;
+ }else{
+   const id=document.getElementById('gaAssetId').value;
+   sec={id,...db.assets.find(a=>a.id===id)};
+   if(!id)return alert('既存銘柄を選択してください。');
+ }
+
+ if(newAccount){
+   const mid=document.getElementById('gaMember').value;
+   const broker=document.getElementById('gaBroker').value.trim();
+   const accountName=document.getElementById('gaAccountName').value.trim();
+   if(!mid||!broker||!accountName)return alert('名義人、証券会社・銀行名、口座種類を入力してください。');
+   const same=db.accounts.find(a=>a.memberId===mid&&a.broker===broker&&a.type===accountName);
+   if(same){
+     ac={id:same.id,member_id:same.memberId};
+   }else{
+     const internalType=accountName.includes('NISA')?'NISA':'特定';
+     const cur=newAsset?document.getElementById('gaCurrency').value:(sec.currency||'JPY');
+     const ar=await sb.from('brokerage_accounts').insert({
+       family_id:fid,member_id:mid,broker_name:broker,account_name:accountName,
+       account_type:internalType,currency:cur,is_active:true
+     }).select('*').single();
+     if(ar.error)return alert('口座登録に失敗：'+ar.error.message);
+     ac=ar.data;
+   }
+ }else{
+   const id=document.getElementById('gaAccountId').value;
+   const x=db.accounts.find(a=>a.id===id);
+   if(!x)return alert('既存口座を選択してください。');
+   ac={id:x.id,member_id:x.memberId};
+ }
+
+ const qty=Number(document.getElementById('gaQty').value);
+ const price=Number(document.getElementById('gaPrice').value);
+ if(!Number.isFinite(qty)||qty<=0)return alert('保有数量を入力してください。');
+ if(!Number.isFinite(price)||price<=0)return alert('取得単価を入力してください。');
+ const cur=newAsset?document.getElementById('gaCurrency').value:(sec.currency||'JPY');
+ const tr=await sb.from('transactions').insert({
+   family_id:fid,member_id:ac.member_id,account_id:ac.id,security_id:sec.id,
+   transaction_type:'initial',trade_date:new Date().toISOString().slice(0,10),
+   quantity:qty,price,currency:cur,funding_source:'通常資金',status:'active',created_by:uid
+ });
+ if(tr.error)return alert('保有数量登録に失敗：'+tr.error.message);
+ closeSheet();await loadRemoteData();alert('資産を登録しました。');
+}
+
+function manageAssetsAccounts(){
+ const assets=(db.assets||[]).map(a=>`<div class="card" style="margin-bottom:8px"><strong>${escapeHtml(a.ticker)}</strong> ${escapeHtml(a.name||'')}<div class="mini muted">${escapeHtml(a.kind||'')}</div><button class="danger close" onclick="deactivateAsset('${a.id}')">この資産を非表示にする</button></div>`).join('');
+ const accounts=(db.accounts||[]).map(a=>`<div class="card" style="margin-bottom:8px"><strong>${escapeHtml(a.member)}</strong><div>${escapeHtml(a.broker)}｜${escapeHtml(a.type||'')}</div><button class="danger close" onclick="deactivateAccount('${a.id}')">この口座を非表示にする</button></div>`).join('');
+ openSheet(`<h2>資産・口座の整理</h2>
+ <div class="notice">ここで非表示にした資産・口座は、新規登録時の選択リストからも消えます。Supabase上の過去データ自体は削除しません。</div>
+ <h3>資産</h3>${assets||'<div class="mini muted">登録なし</div>'}
+ <h3 style="margin-top:18px">口座</h3>${accounts||'<div class="mini muted">登録なし</div>'}`);
+}
+async function deactivateAsset(id){
+ const a=db.assets.find(x=>x.id===id);
+ if(!a||!confirm(`${a.ticker} ${a.name||''} を非表示にしますか？\n保有履歴は削除せず、今後の選択リストから除外します。`))return;
+ const {error}=await sb.from('securities').update({is_active:false}).eq('id',id);
+ if(error)return alert('資産を非表示にできません：'+error.message);
+ closeSheet();await loadRemoteData();alert('資産を非表示にしました。');
+}
+async function deactivateAccount(id){
+ const a=db.accounts.find(x=>x.id===id);
+ if(!a||!confirm(`${a.broker}｜${a.type||''} を非表示にしますか？\n過去履歴は削除せず、今後の選択リストから除外します。`))return;
+ const {error}=await sb.from('brokerage_accounts').update({is_active:false}).eq('id',id);
+ if(error)return alert('口座を非表示にできません：'+error.message);
+ closeSheet();await loadRemoteData();alert('口座を非表示にしました。');
+}
+
 function manualAssetForm(){
  const members=(db.memberRecords||[]);
  const memberOptions=members.length
