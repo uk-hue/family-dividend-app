@@ -1,5 +1,5 @@
 <!doctype html><html lang='ja'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1,viewport-fit=cover'><title>配当ポートフォリオ v1 Prototype</title><style>
-:root{--bg:#f4f6f8;--card:#fff;--text:#17202a;--muted:#667085;--line:#e5e7eb;--accent:#176b4d;--accent2:#e9f5ef;--warn:#9a6700;--danger:#b42318}*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif;color:var(--text);font-size:18px}header{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line);padding:14px 18px;display:flex;gap:12px;align-items:center;justify-content:space-between}.brand{font-weight:800;font-size:20px}.filter{font-size:17px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#fff}.wrap{max-width:1180px;margin:auto;padding:18px 18px 96px}.hero{background:linear-gradient(135deg,#fff,#edf7f2);border:1px solid #dcebe4;border-radius:20px;padding:22px}.eyebrow{color:var(--muted);font-weight:700}.big{font-size:44px;font-weight:850;letter-spacing:-1px;margin:6px 0}.subgrid,.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}.metric,.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px}.metric b{display:block;font-size:24px;margin-top:5px}.section{margin-top:22px}.section h2{font-size:22px;margin:0 0 12px}.progress{height:16px;background:#e5e7eb;border-radius:99px;overflow:hidden;margin-top:8px}.progress>i{display:block;width:80.4%;height:100%;background:var(--accent)}.next{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}.next .card strong{font-size:20px}.chart{height:190px;display:flex;align-items:flex-end;gap:8px;padding:12px 4px 0}.bar{flex:1;background:#cfe7db;border-radius:7px 7px 0 0;min-height:12px;position:relative}.bar .month{position:absolute;bottom:-27px;width:100%;text-align:center;font-size:13px;color:var(--muted)}.bar .amount{position:absolute;top:-25px;width:100%;text-align:center;font-size:12px;font-weight:800;color:var(--text);white-space:nowrap}.piegrid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}.piecard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px}.pie{width:180px;height:180px;border-radius:50%;margin:12px auto}.legend{display:grid;grid-template-columns:1fr;gap:8px;font-size:15px;margin-top:12px}.legend span{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 8px;border-radius:9px;background:#fafafa}.legend .label{display:flex;align-items:center;gap:8px}.legend .swatch{width:14px;height:14px;border-radius:4px;flex:0 0 14px}.legend strong{font-size:15px}.c1{background:#a9d6c7}.c2{background:#f3c7b8}.c3{background:#c8d7f0}.c4{background:#f5dda8}.c5{background:#d8c9e8}.pie1{background:conic-gradient(#a9d6c7 0 31%,#f3c7b8 31% 51%,#c8d7f0 51% 69%,#f5dda8 69% 84%,#d8c9e8 84% 100%)}.pie2{background:conic-gradient(#a9d6c7 0 29%,#f3c7b8 29% 54%,#c8d7f0 54% 71%,#f5dda8 71% 86%,#d8c9e8 86% 100%)}.pie3{background:conic-gradient(#a9d6c7 0 42%,#c8d7f0 42% 100%)}.pie4{background:conic-gradient(#f5dda8 0 36%,#c8d7f0 36% 100%)}nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;justify-content:center;z-index:10}.navin{width:min(100%,800px);display:grid;grid-template-columns:repeat(5,1fr)}nav button{border:0;background:#fff;padding:13px 5px;font-size:14px;color:#475467}nav button.active{color:var(--accent);font-weight:800}.fab{position:fixed;right:22px;bottom:82px;width:62px;height:62px;border-radius:50%;border:0;background:var(--accent);color:white;font-size:34px;box-shadow:0 8px 24px #0003}.pill{display:inline-block;border-radius:99px;padding:5px 9px;background:var(--accent2);color:var(--accent);font-size:14px;font-weight:700}.muted{color:var(--muted)}table{width:100%;border-collapse:collapse;background:#fff;border-radius:14px;overflow:hidden}th,td{padding:13px 10px;border-bottom:1px solid var(--line);text-align:right}th:first-child,td:first-child{text-align:left}.hide{display:none}.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}.toolbar button{font-size:16px;padding:10px 13px;border:1px solid var(--line);border-radius:10px;background:#fff}.modal{position:fixed;inset:0;background:#0008;z-index:30;display:none;align-items:flex-end;justify-content:center}.sheet{width:min(100%,600px);background:#fff;border-radius:22px 22px 0 0;padding:22px}.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.actions button{padding:18px;border:1px solid var(--line);background:#fff;border-radius:14px;font-size:18px}.close{width:100%;margin-top:12px;padding:14px;border:0;border-radius:12px;font-size:17px}.tag-hi{color:#8a3b00;background:#fff1e7}.tag-div{color:#176b4d;background:#e9f5ef}.tag-none{color:#475467;background:#f2f4f7}@media(max-width:800px){body{font-size:17px}.piegrid{grid-template-columns:1fr 1fr}.pie{width:150px;height:150px}.wrap{padding:14px 12px 96px}.big{font-size:38px}.subgrid,.cards{grid-template-columns:1fr 1fr}.next{grid-template-columns:1fr}.desktop{display:none}header{padding:12px}.brand{font-size:18px}.hero{padding:18px}}@media(max-width:430px){.piegrid{grid-template-columns:1fr}.pie{width:180px;height:180px}.subgrid{grid-template-columns:1fr 1fr}.metric{padding:13px}.metric b{font-size:20px}.big{font-size:36px}}
+:root{--bg:#f4f6f8;--card:#fff;--text:#17202a;--muted:#667085;--line:#e5e7eb;--accent:#176b4d;--accent2:#e9f5ef;--warn:#9a6700;--danger:#b42318}*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif;color:var(--text);font-size:18px}header{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line);padding:14px 18px;display:flex;gap:12px;align-items:center;justify-content:space-between}.brand{font-weight:800;font-size:20px}.filter{font-size:17px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#fff}.wrap{max-width:1180px;margin:auto;padding:18px 18px 96px}.hero{background:linear-gradient(135deg,#fff,#edf7f2);border:1px solid #dcebe4;border-radius:20px;padding:22px}.eyebrow{color:var(--muted);font-weight:700}.big{font-size:44px;font-weight:850;letter-spacing:-1px;margin:6px 0}.subgrid,.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}.metric,.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px}.metric b{display:block;font-size:24px;margin-top:5px}.section{margin-top:22px}.section h2{font-size:22px;margin:0 0 12px}.progress{height:16px;background:#e5e7eb;border-radius:99px;overflow:hidden;margin-top:8px}.progress>i{display:block;width:80.4%;height:100%;background:var(--accent)}.next{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}.next .card strong{font-size:20px}.chart{height:190px;display:flex;align-items:flex-end;gap:8px;padding:12px 4px 0}.bar{flex:1;background:#cfe7db;border-radius:7px 7px 0 0;min-height:12px;position:relative}.bar .month{position:absolute;bottom:-27px;width:100%;text-align:center;font-size:13px;color:var(--muted)}.bar .amount{position:absolute;top:-25px;width:100%;text-align:center;font-size:12px;font-weight:800;color:var(--text);white-space:nowrap}.piegrid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}.piecard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px}.pie{width:180px;height:180px;border-radius:50%;margin:12px auto}.legend{display:grid;grid-template-columns:1fr;gap:8px;font-size:15px;margin-top:12px}.legend span{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 8px;border-radius:9px;background:#fafafa}.legend .label{display:flex;align-items:center;gap:8px}.legend .swatch{width:14px;height:14px;border-radius:4px;flex:0 0 14px}.legend strong{font-size:15px}.c1{background:#a9d6c7}.c2{background:#f3c7b8}.c3{background:#c8d7f0}.c4{background:#f5dda8}.c5{background:#d8c9e8}.pie1{background:conic-gradient(#a9d6c7 0 31%,#f3c7b8 31% 51%,#c8d7f0 51% 69%,#f5dda8 69% 84%,#d8c9e8 84% 100%)}.pie2{background:conic-gradient(#a9d6c7 0 29%,#f3c7b8 29% 54%,#c8d7f0 54% 71%,#f5dda8 71% 86%,#d8c9e8 86% 100%)}.pie3{background:conic-gradient(#a9d6c7 0 42%,#c8d7f0 42% 100%)}.pie4{background:conic-gradient(#f5dda8 0 36%,#c8d7f0 36% 100%)}nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;justify-content:center;z-index:10}.navin{width:min(100%,800px);display:grid;grid-template-columns:repeat(5,1fr)}nav button{border:0;background:#fff;padding:13px 5px;font-size:14px;color:#475467}nav button.active{color:var(--accent);font-weight:800}.fab{position:fixed;right:22px;bottom:82px;width:62px;height:62px;border-radius:50%;border:0;background:var(--accent);color:white;font-size:34px;box-shadow:0 8px 24px #0003}.pill{display:inline-block;border-radius:99px;padding:5px 9px;background:var(--accent2);color:var(--accent);font-size:14px;font-weight:700}.muted{color:var(--muted)}table{width:100%;border-collapse:collapse;background:#fff;border-radius:14px;overflow:hidden}th,td{padding:13px 10px;border-bottom:1px solid var(--line);text-align:right}th:first-child,td:first-child{text-align:left}.hide{display:none}.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}.toolbar button{font-size:16px;padding:10px 13px;border:1px solid var(--line);border-radius:10px;background:#fff}.modal{position:fixed;inset:0;background:#0008;z-index:30;display:none;align-items:flex-end;justify-content:center}.sheet{width:min(100%,600px);background:#fff;border-radius:22px 22px 0 0;padding:22px;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch}.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.actions button{padding:18px;border:1px solid var(--line);background:#fff;border-radius:14px;font-size:18px}.close{width:100%;margin-top:12px;padding:14px;border:0;border-radius:12px;font-size:17px}.tag-hi{color:#8a3b00;background:#fff1e7}.tag-div{color:#176b4d;background:#e9f5ef}.tag-none{color:#475467;background:#f2f4f7}@media(max-width:800px){body{font-size:17px}.piegrid{grid-template-columns:1fr 1fr}.pie{width:150px;height:150px}.wrap{padding:14px 12px 96px}.big{font-size:38px}.subgrid,.cards{grid-template-columns:1fr 1fr}.next{grid-template-columns:1fr}.desktop{display:none}header{padding:12px}.brand{font-size:18px}.hero{padding:18px}}@media(max-width:430px){.piegrid{grid-template-columns:1fr}.pie{width:180px;height:180px}.subgrid{grid-template-columns:1fr 1fr}.metric{padding:13px}.metric b{font-size:20px}.big{font-size:36px}}
 
 .formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field label{display:block;font-size:14px;color:var(--muted);font-weight:700;margin-bottom:5px}.field input,.field select{width:100%;font-size:17px;padding:11px;border:1px solid var(--line);border-radius:10px;background:#fff}.wide{grid-column:1/-1}.primary{background:var(--accent)!important;color:#fff!important;border:0!important}.dangerbtn{color:var(--danger)}.rowactions button{font-size:13px;padding:5px 8px;margin-left:4px}.notice{padding:10px 12px;border-radius:10px;background:#fff8e6;color:#7a5200;font-size:14px;margin:10px 0}.mini{font-size:14px}.empty{padding:24px;text-align:center;color:var(--muted)}@media(max-width:600px){.formgrid{grid-template-columns:1fr}.wide{grid-column:auto}.amount{font-size:10px!important}}
 
@@ -16,8 +16,8 @@
 <meta name="theme-color" content="#17785a"><meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="配当ポートフォリオ">
 <link rel="apple-touch-icon" href="./icons/icon-180.png"></head><body>
-<div class="authscreen" id="authScreen"><div class="authcard"><h1>配当ポートフォリオ</h1><p class="muted">PWA家族共有 v0.9.5</p><div id="setupBox"><div class="field"><label>Project URL</label><input id="sbUrl" placeholder="https://xxxxx.supabase.co"></div><div class="field"><label>Publishable key</label><input id="sbKey" type="password" placeholder="sb_publishable_..."></div><button class="primary close" id="saveConnection">接続設定を保存</button><div class="notice">Secret key / service_role key は入力しないでください。</div></div><div id="loginBox" class="hide"><div class="field"><label>メールアドレス</label><input id="loginEmail" type="email" autocomplete="username"></div><div class="field"><label>パスワード</label><input id="loginPassword" type="password" autocomplete="current-password"></div><button class="primary close" id="loginBtn">ログイン</button><button class="close" id="changeConnection">接続設定を変更</button></div><div class="statusbox" id="authStatus">接続設定を入力してください。</div></div></div>
-<header><div><div class="brand">配当ポートフォリオ <span class="mini muted">PWA家族共有 v0.9.5</span></div><div class="userbar" id="userBar"></div></div><div style="display:flex;gap:8px;align-items:center"><select id="memberFilter" class="filter"></select><button id="logoutBtn" class="filter">ログアウト</button></div></header>
+<div class="authscreen" id="authScreen"><div class="authcard"><h1>配当ポートフォリオ</h1><p class="muted">PWA家族共有 v0.9.5.1</p><div id="setupBox"><div class="field"><label>Project URL</label><input id="sbUrl" placeholder="https://xxxxx.supabase.co"></div><div class="field"><label>Publishable key</label><input id="sbKey" type="password" placeholder="sb_publishable_..."></div><button class="primary close" id="saveConnection">接続設定を保存</button><div class="notice">Secret key / service_role key は入力しないでください。</div></div><div id="loginBox" class="hide"><div class="field"><label>メールアドレス</label><input id="loginEmail" type="email" autocomplete="username"></div><div class="field"><label>パスワード</label><input id="loginPassword" type="password" autocomplete="current-password"></div><button class="primary close" id="loginBtn">ログイン</button><button class="close" id="changeConnection">接続設定を変更</button></div><div class="statusbox" id="authStatus">接続設定を入力してください。</div></div></div>
+<header><div><div class="brand">配当ポートフォリオ <span class="mini muted">PWA家族共有 v0.9.5.1</span></div><div class="userbar" id="userBar"></div></div><div style="display:flex;gap:8px;align-items:center"><select id="memberFilter" class="filter"></select><button id="logoutBtn" class="filter">ログアウト</button></div></header>
 <div class="wrap">
 <section id="home"></section>
 <section id="portfolio" class="hide"></section>
@@ -87,10 +87,10 @@ function renderPortfolio(){
  <div class="mini muted" style="margin-bottom:10px">${assetTypeFilter}：${hs.length}件</div>
  ${hs.length?hs.map(h=>{
    let a=asset(h.assetId),ac=acct(h.accountId),v=valueY(h),share=totalVal?v/totalVal*100:0,y=v?annualY(h)/v*100:0;
-   let cash=assetGroup(a)==='銀行預金'||assetGroup(a)==='MMF';
+   let cash=assetGroup(a)==='銀行預金'||assetGroup(a)==='MMF'; let cashRate=cash?(+a.annualPerShare||0)*100:0;
    let qtyLabel=cash?'残高単位':'保有株数・口数';
    return `<div class="card asset-card"><div class="asset-row"><div><strong>${escapeHtml(a.ticker||a.name)}</strong><div class="mini muted">${escapeHtml(a.name||'')}</div><div class="asset-qty">${qtyLabel}：${Number(h.qty).toLocaleString('ja-JP',{maximumFractionDigits:6})}</div><div class="mini muted">${escapeHtml(ac.member)}｜${escapeHtml(ac.broker)} ${escapeHtml(ac.type||'')}</div></div><div style="text-align:right"><strong>${yen(v)}</strong><div class="mini muted">構成比 ${share.toFixed(1)}%</div></div></div>
-   <div class="mini" style="margin-top:8px">現在価格 ${a.currency==='USD'?'$':''}${Number(a.price||0).toLocaleString('ja-JP')} ${escapeHtml(a.currency||'')}　年間配当 ${yen(annualY(h))}${a.annualPerShare?`　利回り ${y.toFixed(2)}%`:''}</div>
+   <div class="mini" style="margin-top:8px">${cash?`金利・利回り ${cashRate.toFixed(3)}%　年間利息見込 ${yen(annualY(h))}`:`現在価格 ${a.currency==='USD'?'$':''}${Number(a.price||0).toLocaleString('ja-JP')} ${escapeHtml(a.currency||'')}　年間配当 ${yen(annualY(h))}${a.annualPerShare?`　利回り ${y.toFixed(2)}%`:''}`}</div>
    <div class="asset-actions"><button onclick="adjustHoldingForm('${h.assetId}','${h.accountId}')">${cash?'残高を修正':'株数・口数を修正'}</button></div></div>`;
  }).join(''):'<div class="card empty">この分類の保有資産はありません。</div>'}
  </div>`;
@@ -209,47 +209,83 @@ async function saveHoldingAdjustment(assetId,accountId){
  closeSheet();await loadRemoteData();alert('数量を更新しました。');
 }
 function manualAssetForm(){
- const memberOptions=(remoteContext?.members||[]).map(m=>`<option value="${m.id}">${escapeHtml(m.display_name)}</option>`).join('');
+ const members=(db.memberRecords||[]);
+ const memberOptions=members.length
+   ? members.map(m=>`<option value="${m.id}">${escapeHtml(m.display_name)}</option>`).join('')
+   : (remoteContext?.member ? `<option value="${remoteContext.member.id}">${escapeHtml(remoteContext.member.display_name)}</option>` : '');
  openSheet(`<h2>MMF・銀行預金を追加</h2>
  <div class="field"><label>資産区分</label><select id="maKind" onchange="toggleManualAssetFields()"><option>銀行預金</option><option>MMF</option></select></div>
  <div id="bankFields">
    <div class="field"><label>銀行名</label><input id="maBank" placeholder="例：○○銀行"></div>
-   <div class="field"><label>預金種別</label><select id="maDepositType"><option>普通預金</option><option>定期預金</option><option>貯蓄預金</option><option>外貨預金</option><option>その他</option></select></div>
+   <div class="field"><label>預金種別</label><select id="maDepositType" onchange="toggleDepositFields()"><option>普通預金</option><option>定期預金</option><option>貯蓄預金</option><option>外貨預金</option><option>その他</option></select></div>
    <div class="field"><label>口座名・メモ（任意）</label><input id="maName" placeholder="例：生活費口座"></div>
+   <div class="field"><label>金利（年率 %）</label><input id="maRate" type="number" min="0" step="0.001" inputmode="decimal" placeholder="例：0.20"></div>
+   <div class="field hide" id="maturityField"><label>満期日（定期のみ・任意）</label><input id="maMaturity" type="date"></div>
  </div>
- <div id="mmfFields" class="hide"><div class="field"><label>MMF名</label><input id="maMmfName" placeholder="例：米ドルMMF"></div><div class="field"><label>金融機関</label><input id="maMmfBank" placeholder="例：SBI証券"></div></div>
+ <div id="mmfFields" class="hide">
+   <div class="field"><label>MMF名</label><input id="maMmfName" placeholder="例：米ドルMMF"></div>
+   <div class="field"><label>金融機関</label><input id="maMmfBank" placeholder="例：SBI証券"></div>
+   <div class="field"><label>利回り・金利（年率 %）</label><input id="maMmfRate" type="number" min="0" step="0.001" inputmode="decimal" placeholder="例：4.50"></div>
+ </div>
  <div class="field"><label>名義人</label><select id="maMember">${memberOptions}</select></div>
  <div class="field"><label>通貨</label><select id="maCurrency"><option>JPY</option><option>USD</option></select></div>
- <div class="field"><label>残高</label><input id="maBalance" type="number" min="0" step="any"></div>
+ <div class="field"><label>残高</label><input id="maBalance" type="number" min="0" step="any" inputmode="decimal" placeholder="例：1000000"></div>
  <button class="primary close" onclick="saveManualAsset()">資産を追加</button>
- <p class="mini muted">MMF・預金は手入力管理です。市場価格の自動更新対象にはしません。</p>`);
+ <p class="mini muted">預金・MMFは手入力管理です。金利は年間利息見込の計算に使用します。市場価格の自動更新対象にはしません。</p>`);
+ toggleManualAssetFields();
 }
 function toggleManualAssetFields(){
- const bank=document.getElementById('maKind').value==='銀行預金';
- document.getElementById('bankFields').classList.toggle('hide',!bank);
- document.getElementById('mmfFields').classList.toggle('hide',bank);
+ const kind=document.getElementById('maKind');
+ if(!kind)return;
+ const bank=kind.value==='銀行預金';
+ document.getElementById('bankFields')?.classList.toggle('hide',!bank);
+ document.getElementById('mmfFields')?.classList.toggle('hide',bank);
+ toggleDepositFields();
+}
+function toggleDepositFields(){
+ const dep=document.getElementById('maDepositType');
+ const mf=document.getElementById('maturityField');
+ if(dep&&mf)mf.classList.toggle('hide',dep.value!=='定期預金');
 }
 async function saveManualAsset(){
  if(!remoteMode)return alert('Supabase接続時に利用できます。');
- const kind=document.getElementById('maKind').value,mid=document.getElementById('maMember').value,cur=document.getElementById('maCurrency').value,balance=+document.getElementById('maBalance').value;
- if(!mid||!Number.isFinite(balance)||balance<0)return alert('名義人と残高を確認してください。');
- let broker,name,accountType;
+ const kind=document.getElementById('maKind').value;
+ const mid=document.getElementById('maMember').value;
+ const cur=document.getElementById('maCurrency').value;
+ const balanceRaw=document.getElementById('maBalance').value;
+ const balance=Number(String(balanceRaw).replace(/,/g,''));
+ if(!mid)return alert('名義人を選択してください。');
+ if(!Number.isFinite(balance)||balance<0)return alert('残高を確認してください。');
+ let broker,name,accountType,rate=0,maturity='';
  if(kind==='銀行預金'){
-   broker=document.getElementById('maBank').value.trim();accountType=document.getElementById('maDepositType').value;name=document.getElementById('maName').value.trim()||accountType;
+   broker=document.getElementById('maBank').value.trim();
+   accountType=document.getElementById('maDepositType').value;
+   name=document.getElementById('maName').value.trim()||accountType;
+   rate=Number(document.getElementById('maRate').value||0);
+   maturity=document.getElementById('maMaturity')?.value||'';
    if(!broker)return alert('銀行名を入力してください。');
  }else{
-   name=document.getElementById('maMmfName').value.trim();broker=document.getElementById('maMmfBank').value.trim();accountType='MMF';
+   name=document.getElementById('maMmfName').value.trim();
+   broker=document.getElementById('maMmfBank').value.trim();
+   accountType='MMF';
+   rate=Number(document.getElementById('maMmfRate').value||0);
    if(!name||!broker)return alert('MMF名と金融機関を入力してください。');
  }
+ if(!Number.isFinite(rate)||rate<0)return alert('金利・利回りを確認してください。');
+
  const fid=remoteContext.family.id,uid=remoteContext.user.id;
- let {data:ac}=await sb.from('brokerage_accounts').select('*').eq('family_id',fid).eq('member_id',mid).eq('broker_name',broker).eq('account_name',accountType).maybeSingle();
+ let {data:ac,error:findAcError}=await sb.from('brokerage_accounts').select('*')
+   .eq('family_id',fid).eq('member_id',mid).eq('broker_name',broker).eq('account_name',accountType).maybeSingle();
+ if(findAcError)return alert('口座確認に失敗：'+findAcError.message);
  if(!ac){
-   const ins={family_id:fid,member_id:mid,broker_name:broker,account_name:accountType,account_type:'特定',currency:cur,is_active:true,created_by:uid};
+   const ins={family_id:fid,member_id:mid,broker_name:broker,account_name:accountType,account_type:'特定',currency:cur,is_active:true};
    const r=await sb.from('brokerage_accounts').insert(ins).select('*').single();
    if(r.error)return alert('口座登録に失敗：'+r.error.message);ac=r.data;
  }
  const symbol=(kind==='銀行預金'?'BANK':'MMF')+'-'+Date.now().toString().slice(-8);
- const secRow={family_id:fid,symbol,name,asset_type:kind,currency:cur,sector:kind==='銀行預金'?accountType:'MMF',current_price:1,annual_dividend_per_share:0,dividend_frequency:0,dividend_status:'据置',is_active:true,created_by:uid};
+ const annualPerUnit=rate/100; // 残高1単位あたりの年間利息。price=1なので既存の年間収益計算を流用できる。
+ const displayName=maturity&&kind==='銀行預金'?`${name}（満期 ${maturity}）`:name;
+ const secRow={family_id:fid,symbol,name:displayName,asset_type:kind,currency:cur,sector:kind==='銀行預金'?accountType:'MMF',current_price:1,annual_dividend_per_share:annualPerUnit,dividend_frequency:rate>0?1:0,dividend_status:'据置',is_active:true};
  const sr=await sb.from('securities').insert(secRow).select('*').single();
  if(sr.error)return alert('資産登録に失敗：'+sr.error.message);
  const tr={family_id:fid,member_id:mid,account_id:ac.id,security_id:sr.data.id,transaction_type:'initial',trade_date:new Date().toISOString().slice(0,10),quantity:balance,price:1,currency:cur,funding_source:'手入力残高',status:'active',created_by:uid};
@@ -619,7 +655,7 @@ async function loadRemoteData(){
   ]);
   const err=[mres,ares,sres,tres,dsres,dpres].find(x=>x.error)?.error;if(err){alert('Supabaseデータ読込エラー：'+err.message);return;}
   const memberMap=Object.fromEntries((mres.data||[]).map(x=>[x.id,x.display_name]));
-  db={settings:{usdJpy:+(setres.data?.usd_jpy_planning_rate||150),goal:+(goalres.data?.target_amount_jpy||0),highYield:+(setres.data?.high_dividend_threshold||4)},members:(mres.data||[]).map(x=>x.display_name),accounts:(ares.data||[]).map(x=>({id:x.id,member:memberMap[x.member_id]||'Member',memberId:x.member_id,broker:x.broker_name,type:x.account_name||x.account_type,currency:x.currency})),assets:(sres.data||[]).map(x=>({id:x.id,ticker:x.symbol,name:x.name,kind:x.asset_type,sector:x.sector||'未分類',currency:x.currency,price:+x.current_price,annualPerShare:+x.annual_dividend_per_share,frequency:x.dividend_frequency||0,dividendStatus:x.dividend_status||'据置',months:Array.isArray(x.dividend_months)?x.dividend_months:[]})),transactions:(tres.data||[]).map(x=>({id:x.id,assetId:x.security_id,accountId:x.account_id,type:x.transaction_type,date:x.trade_date,qty:+x.quantity,price:+x.price,fund:x.funding_source,cancelled:false})),dividends:[
+  db={settings:{usdJpy:+(setres.data?.usd_jpy_planning_rate||150),goal:+(goalres.data?.target_amount_jpy||0),highYield:+(setres.data?.high_dividend_threshold||4)},members:(mres.data||[]).map(x=>x.display_name),memberRecords:(mres.data||[]).map(x=>({id:x.id,display_name:x.display_name})),accounts:(ares.data||[]).map(x=>({id:x.id,member:memberMap[x.member_id]||'Member',memberId:x.member_id,broker:x.broker_name,type:x.account_name||x.account_type,currency:x.currency})),assets:(sres.data||[]).map(x=>({id:x.id,ticker:x.symbol,name:x.name,kind:x.asset_type,sector:x.sector||'未分類',currency:x.currency,price:+x.current_price,annualPerShare:+x.annual_dividend_per_share,frequency:x.dividend_frequency||0,dividendStatus:x.dividend_status||'据置',months:Array.isArray(x.dividend_months)?x.dividend_months:[]})),transactions:(tres.data||[]).map(x=>({id:x.id,assetId:x.security_id,accountId:x.account_id,type:x.transaction_type,date:x.trade_date,qty:+x.quantity,price:+x.price,fund:x.funding_source,cancelled:false})),dividends:[
     ...(dsres.data||[]).map(x=>({id:x.id,assetId:x.security_id,accountId:x.account_id,date:x.expected_date,status:'planned',gross:+x.gross_amount,net:+(x.estimated_net_amount??x.gross_amount),currency:x.currency,fx:x.currency==='JPY'?1:+(x.estimated_fx_rate||db?.settings?.usdJpy||150),cancelled:false,scheduleStatus:x.status,scheduleSource:x.schedule_source||'manual'})),
     ...(dpres.data||[]).map(x=>({id:x.id,assetId:x.security_id,accountId:x.account_id,date:x.payment_date,status:'actual',gross:+x.gross_amount,net:+x.net_amount,currency:x.currency,fx:x.currency==='JPY'?1:+(x.fx_rate||1),cancelled:false,distributionType:x.distribution_type||'配当'}))
   ],priceUpdated:new Date().toISOString().slice(0,10)};
